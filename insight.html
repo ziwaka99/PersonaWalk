@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insight - Persona Walk</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
+</head>
+<body class="dark-page insight-page">
+    <nav class="navbar">
+        <h1>persona<span class="brand-light">walk</span></h1>
+        <a href="index.html">home</a>
+        <a href="playback.html">playback</a>
+        <a href="realmap.html">real map</a>
+        <a href="insight.html" class="active">insight</a>
+    </nav>
+
+    <div class="page-container" style="padding-top:8px;">
+        <h2 class="section-heading">Insight</h2>
+        <p class="section-sub">Compare personas — pick from the list, then sort columns to rank by any metric.</p>
+
+        <div class="insight-toolbar">
+            <div class="toolbar-group" style="margin-left:auto;">
+                <span id="status-text" style="color:var(--text-muted);font-size:12px;"></span>
+                <button id="btn-refresh">Refresh</button>
+            </div>
+        </div>
+
+        <div class="insight-podium-wrap" id="insight-podium-wrap">
+            <!-- Tab switcher: Podium / Map -->
+            <div class="insight-view-tabs" role="tablist">
+                <button class="view-tab active" data-view="podium" role="tab">Podium</button>
+                <button class="view-tab" data-view="map" role="tab">Map</button>
+            </div>
+
+            <!-- Podium view (default) -->
+            <div class="insight-view-pane" id="view-podium">
+                <div class="insight-podium-head">
+                    <div>
+                        <div class="podium-title">Top 3 podium</div>
+                        <div class="podium-sub" id="podium-sub">Select personas to populate the podium.</div>
+                    </div>
+                    <div class="podium-legend" id="podium-legend"></div>
+                </div>
+                <div class="insight-podium" id="insight-podium"></div>
+            </div>
+
+            <!-- Map view (alternative) — overlays paths of currently-selected personas -->
+            <div class="insight-view-pane" id="view-map" hidden>
+                <div class="insight-map-head">
+                    <div>
+                        <div class="podium-title">Selected personas — route overlay</div>
+                        <div class="podium-sub" id="map-sub">Select personas on the left to draw their walked paths.</div>
+                    </div>
+                </div>
+                <div class="insight-map-container" id="insight-graph-container"></div>
+            </div>
+        </div>
+
+        <div class="insight-layout" style="margin-top:16px;">
+
+            <!-- Left: persona picker -->
+            <aside class="persona-picker">
+                <div class="persona-picker-head">
+                    <span class="title">Personas</span>
+                    <span class="count" id="picker-count">0 / 0 selected</span>
+                </div>
+
+                <!-- Survey filter — narrows the visible persona list below -->
+                <details class="survey-filter" id="survey-filter" open>
+                    <summary>
+                        <span>Filter by survey</span>
+                        <button type="button" class="mini-btn" id="btn-filter-reset"
+                                title="Reset all filters">Reset</button>
+                    </summary>
+                    <div class="filter-grid" id="filter-grid">
+                        <!-- Q1 age: range inputs -->
+                        <label class="filter-field filter-field-age">
+                            <span class="filter-label">Q1 Age</span>
+                            <span class="age-range">
+                                <input type="number" id="f-age-min" placeholder="min" min="0" max="120">
+                                <span>–</span>
+                                <input type="number" id="f-age-max" placeholder="max" min="0" max="120">
+                            </span>
+                        </label>
+                        <!-- Q2..Q10: dropdowns, populated from data by JS -->
+                        <label class="filter-field">
+                            <span class="filter-label">Q2 Gender</span>
+                            <select data-q="Q2_gender"><option value="">Any</option></select>
+                        </label>
+                        <label class="filter-field">
+                            <span class="filter-label">Q3 Stamina</span>
+                            <select data-q="Q3_stamina"><option value="">Any</option></select>
+                        </label>
+                        <label class="filter-field">
+                            <span class="filter-label">Q4 Activity</span>
+                            <select data-q="Q4_activity"><option value="">Any</option></select>
+                        </label>
+                        <label class="filter-field">
+                            <span class="filter-label">Q5 Familiarity</span>
+                            <select data-q="Q5_familiarity"><option value="">Any</option></select>
+                        </label>
+                        <label class="filter-field">
+                            <span class="filter-label">Q6 Heat sensitivity</span>
+                            <select data-q="Q6_heat_sensitivity"><option value="">Any</option></select>
+                        </label>
+                        <label class="filter-field">
+                            <span class="filter-label">Q7 Noticing</span>
+                            <select data-q="Q7_noticing"><option value="">Any</option></select>
+                        </label>
+                        <label class="filter-field">
+                            <span class="filter-label">Q8 Env preference</span>
+                            <select data-q="Q8_env_preference"><option value="">Any</option></select>
+                        </label>
+                        <label class="filter-field">
+                            <span class="filter-label">Q9 Time pressure</span>
+                            <select data-q="Q9_time_pressure"><option value="">Any</option></select>
+                        </label>
+                        <label class="filter-field">
+                            <span class="filter-label">Q10 Detour openness</span>
+                            <select data-q="Q10_detour_openness"><option value="">Any</option></select>
+                        </label>
+                    </div>
+                </details>
+
+                <div class="search-wrap">
+                    <input id="picker-search" type="search" placeholder="Search persona id or filename...">
+                </div>
+                <div class="persona-picker-actions">
+                    <button id="btn-select-all">Select all</button>
+                    <button id="btn-select-none">Clear</button>
+                    <button id="btn-select-visible">Select visible</button>
+                </div>
+                <div class="persona-list" id="persona-list">
+                    <div class="insight-empty" style="padding:24px;">Loading...</div>
+                </div>
+            </aside>
+
+            <!-- Right: ranking table -->
+            <section class="insight-table-wrap">
+                <table class="insight-table" id="insight-table">
+                    <thead>
+                        <tr id="insight-thead-row"></tr>
+                    </thead>
+                    <tbody id="insight-tbody">
+                        <tr><td colspan="10"><div class="insight-empty">Select personas on the left to populate the ranking table.</div></td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </div>
+
+    <script src="js/data-loader.js"></script>
+    <script src="js/graph-renderer.js"></script>
+    <script src="js/insight-view.js"></script>
+</body>
+</html>

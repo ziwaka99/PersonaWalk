@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-55 -60 110 120">
+  <path d="M 0 -46 C 13 -39 32 -24 35 -9 C 39 14 20 43 0 45 C -20 43 -38 13 -35 -9 C -32 -24 -13 -39 0 -46 Z"
+        fill="var(--part-shadow-color, #232323)"
+        transform="translate(4 5)"/>
+</svg>

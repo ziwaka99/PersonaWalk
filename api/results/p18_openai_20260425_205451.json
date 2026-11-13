@@ -1,0 +1,235 @@
+{
+  "persona_id": "p18",
+  "provider": "openai",
+  "start_node": "305.52,545.03",
+  "goal_node": "791.39,424.53",
+  "outcome": "reached_goal",
+  "path": [
+    "305.52,545.03",
+    "386.69,465.36",
+    "423.33,424.2",
+    "451.43,449.63",
+    "509.16,375.12",
+    "533.0489,390.5598",
+    "563.2483,347.4875",
+    "583.39,318.76",
+    "664.35,366.63",
+    "730.67,398.28",
+    "791.39,424.53"
+  ],
+  "total_steps": 10,
+  "total_distance_m": 651.899338,
+  "total_time_s": 482.9,
+  "final_fatigue": 0.2408,
+  "final_heat": 0.8048,
+  "per_step": [
+    {
+      "step": 1,
+      "node_before": "305.52,545.03",
+      "action": "walk",
+      "next_node": "386.69,465.36",
+      "reasoning": "With a fresh body state and a desire to get closer to my destination, I'll opt for the medium path that takes me significantly closer. The lively atmosphere and open, airy feel are appealing, and a mild breeze should keep me comfortable despite the heat.",
+      "fatigue_before": 0.0,
+      "heat_before": 0.0,
+      "fatigue_after": 0.042,
+      "heat_after": 0.1404
+    },
+    {
+      "step": 2,
+      "node_before": "386.69,465.36",
+      "action": "walk",
+      "next_node": "423.33,424.2",
+      "reasoning": "Given my fresh state and minor fatigue, I'm drawn to the shortest path progressing me closer to my destination. The mild breeze at 423.33,424.2 will likely offset the hotter thermal impression, making it an appealing option to keep moving comfortably. Plus, it reduces the travel distance significantly.",
+      "fatigue_before": 0.042,
+      "heat_before": 0.1404,
+      "fatigue_after": 0.0624,
+      "heat_after": 0.2085
+    },
+    {
+      "step": 3,
+      "node_before": "423.33,424.2",
+      "action": "walk",
+      "next_node": "451.43,449.63",
+      "reasoning": "I'm still feeling fresh and comfortable, so there's no need to rest. Taking the short path to 451.43,449.63 keeps me closer to the familiar urban surroundings I enjoy. While it might be hot, the canyon-like enclosure and lively atmosphere are quite engaging, and I prefer shorter paths to stay focused on my destination.",
+      "fatigue_before": 0.0624,
+      "heat_before": 0.2085,
+      "fatigue_after": 0.0764,
+      "heat_after": 0.2552
+    },
+    {
+      "step": 4,
+      "node_before": "451.43,449.63",
+      "action": "walk",
+      "next_node": "509.16,375.12",
+      "reasoning": "While both paths are partially shaded and canyon-like, I prefer the medium path to 509.16,375.12 as it takes me significantly closer to my goal. My body state is still fresh with mild heat, and the quiet nature of the other path doesn't appeal as much as being somewhat closer to urban activity. I'm comfortable pushing on without the rest since I'm eager to progress more significantly toward my destination.",
+      "fatigue_before": 0.0764,
+      "heat_before": 0.2552,
+      "fatigue_after": 0.1112,
+      "heat_after": 0.3716
+    },
+    {
+      "step": 5,
+      "node_before": "509.16,375.12",
+      "action": "walk",
+      "next_node": "533.0489,390.5598",
+      "reasoning": "I'm still feeling fresh and the heat is manageable, so I'm inclined to keep moving. Heading towards 533.0489,390.5598 is a short path, and it gets me closer to my destination. The lively activity there is inviting. Since I'm not particularly bothered by the heat and I enjoy the urban vibe, this forward movement helps me stay on track with my journey without unnecessary deviations.",
+      "fatigue_before": 0.1112,
+      "heat_before": 0.3716,
+      "fatigue_after": 0.1217,
+      "heat_after": 0.4067
+    },
+    {
+      "step": 6,
+      "node_before": "533.0489,390.5598",
+      "action": "walk",
+      "next_node": "563.2483,347.4875",
+      "reasoning": "Although the path is noted as hot, I'm still feeling fresh and can manage the heat. The short path to 563.2483,347.4875 takes me closer to my goal than the other options, and the lively activity there promises an engaging urban experience. I prefer this balance of engaging sights and progress toward my destination.",
+      "fatigue_before": 0.1217,
+      "heat_before": 0.4067,
+      "fatigue_after": 0.1411,
+      "heat_after": 0.4717
+    },
+    {
+      "step": 7,
+      "node_before": "563.2483,347.4875",
+      "action": "walk",
+      "next_node": "583.39,318.76",
+      "reasoning": "I'm feeling quite fresh and the tree-lined, canyon-like path with a strong breeze sounds appealing. It offers a neutral thermal impression, which is preferable given my slight heat load. Plus, this route takes me slightly closer to my goal. The some activity around adds to the pleasant urban experience without being overwhelming. Thus, it's a balanced choice to keep moving forward.",
+      "fatigue_before": 0.1411,
+      "heat_before": 0.4717,
+      "fatigue_after": 0.1541,
+      "heat_after": 0.515
+    },
+    {
+      "step": 8,
+      "node_before": "583.39,318.76",
+      "action": "walk",
+      "next_node": "664.35,366.63",
+      "reasoning": "Although it's a hot path, I'm still feeling fresh enough to manage the heat. Heading to 664.35,366.63 takes me significantly closer to my goal with a lively vibe that aligns with my enjoyment of urban life. The mild breeze should help with the heat as I progress toward my destination.",
+      "fatigue_before": 0.1541,
+      "heat_before": 0.515,
+      "fatigue_after": 0.1888,
+      "heat_after": 0.6312
+    },
+    {
+      "step": 9,
+      "node_before": "664.35,366.63",
+      "action": "walk",
+      "next_node": "730.67,398.28",
+      "reasoning": "I'm feeling fresh and motivated to reach my destination, which is now just approximately 141m away. The path to 730.67,398.28 is the shortest route, with just 67m left to the goal from there. Although the path is noted as hot, the tree-lined, canyon-like setting with a mild breeze should provide some relief. The presence of some activity adds to the urban experiences I enjoy.",
+      "fatigue_before": 0.1888,
+      "heat_before": 0.6312,
+      "fatigue_after": 0.216,
+      "heat_after": 0.7219
+    },
+    {
+      "step": 10,
+      "node_before": "730.67,398.28",
+      "action": "walk",
+      "next_node": "791.39,424.53",
+      "reasoning": "I'm feeling relatively fresh, though the heat is noticeable. With only about 67 meters left to my destination, taking the path to 791.39,424.53 is appealing. It's short and tree-lined, which should help with the heat. Plus, it arrives at my goal directly, making it the most efficient choice to wrap up this commute while still enjoying some activity and a mild breeze.",
+      "fatigue_before": 0.216,
+      "heat_before": 0.7219,
+      "fatigue_after": 0.2408,
+      "heat_after": 0.8048
+    }
+  ],
+  "llm_metadata": [
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122234.225279,
+      "latency_s": 2.802
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122237.029027,
+      "latency_s": 2.293
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122239.324261,
+      "latency_s": 3.201
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122242.5274925,
+      "latency_s": 1.755
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122244.2841208,
+      "latency_s": 2.36
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122246.6454284,
+      "latency_s": 2.099
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122248.745941,
+      "latency_s": 1.863
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122250.6103528,
+      "latency_s": 2.312
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122252.9241824,
+      "latency_s": 4.094
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122257.0195723,
+      "latency_s": 2.039
+    }
+  ],
+  "persona_layers": {
+    "layer_1": "A local resident, he is making his daily commute through the vibrant urban streetscape. Walking offers an opportunity for him to connect with the dynamic rhythm of city life.",
+    "layer_2": "He is largely unfazed by heat or the appearance of a sunny day, finding comfort in the hustle and flow of urban environments. While he enjoys the sights and sounds of bustling streetsides filled with buildings and city activity, his familiarity with the area often means he notices little of the routine landscapes. With a somewhat relaxed attitude towards time, he appreciates the flexibility to take detours, possibly exploring new routes or interesting spots along the way. He tends to push through fatigue, seldom needing to stop and rest, which aligns with a commuter's desire to remain on the move. Though he welcomes intriguing diversions, his commitment to reaching his destination usually steers him away from lengthy deviations.",
+    "layer_3": "\"When facing trade-offs, this persona prioritizes maintaining his pace first, exploring new routes second, and accommodating rest third.\""
+  },
+  "numeric_params": {
+    "base_speed_mps": 1.35,
+    "stamina_reserve": 0.9,
+    "heat_tolerance": 1.0,
+    "age_factor": 1.108,
+    "fatigue_bands": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "heat_bands": [
+      0.25,
+      0.5,
+      0.75
+    ]
+  },
+  "profile_provider": "openai",
+  "profile_llm_metadata": [
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122228.6824856,
+      "latency_s": 1.77
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122230.4530706,
+      "latency_s": 3.771
+    }
+  ]
+}

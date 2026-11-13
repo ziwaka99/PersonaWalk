@@ -1,0 +1,1321 @@
+/* ============================================================
+   Playback page — portrait map (left) + timelines (right)
+   ============================================================ */
+
+.playback-main {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    width: 100%;
+    gap: 32px;
+    padding: 0;
+    margin: 0;
+    align-items: stretch;
+    background: var(--bg);
+}
+
+.playback-left {
+    width: 100%;
+    min-width: 0;
+    flex: 0 0 calc(50vh - 85px);
+    min-height: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+    gap: 0;
+    overflow: hidden;
+}
+
+#btn-toggle-reasoning.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+/* Frameless info strip above the map */
+.info-strip {
+    padding: 4px 2px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    line-height: 1.45;
+}
+.info-strip .info-persona { color: var(--text); }
+.info-strip .info-persona strong { color: var(--accent); font-weight: 700; }
+.info-strip .info-state {
+    color: var(--text);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-size: 12px;
+}
+.info-strip .info-state .kv { display: inline-flex; gap: 4px; align-items: baseline; }
+.info-strip .info-state .k { color: var(--text-muted); }
+.info-strip .info-state .v { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.info-strip.state-hud {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    z-index: 8;
+    width: min(180px, calc(100% - 16px));
+    padding: 0;
+    pointer-events: none;
+}
+.info-strip.state-hud .info-state {
+    display: block;
+    font-size: 8px;
+    line-height: 1.2;
+}
+.state-hud-card {
+    padding: 4px 5px;
+    color: #f8fafc;
+    background: rgba(11, 15, 24, 0.74);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.26);
+    backdrop-filter: blur(5px);
+}
+.state-hud-top {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    margin-bottom: 3px;
+    font-size: 7px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.state-hud-step {
+    font-weight: 800;
+    color: #ffffff;
+}
+.state-hud-action,
+.state-hud-rest {
+    color: #9ff7f4;
+    font-weight: 700;
+}
+.state-hud-node {
+    margin-left: auto;
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgba(248,250,252,0.72);
+    font-weight: 700;
+    text-align: right;
+}
+.state-hud-row {
+    display: grid;
+    grid-template-columns: 22px minmax(48px, 1fr) 48px;
+    align-items: center;
+    gap: 4px;
+    min-height: 11px;
+}
+.state-hud-label {
+    color: rgba(248,250,252,0.78);
+    font-size: 7px;
+    font-weight: 800;
+}
+.state-hud-track {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(4px, 1fr));
+    gap: 2px;
+    padding: 3px 4px;
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+}
+.state-hud-seg {
+    height: 6px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.13);
+}
+.state-hud-progress .state-hud-seg.active { background: #6c5ce7; }
+.state-hud-fatigue .state-hud-seg.active { background: #d63031; }
+.state-hud-heat .state-hud-seg.active { background: #fdcb6e; }
+.state-hud-distance .state-hud-seg.active { background: #22d3d6; }
+.state-hud-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgba(248,250,252,0.86);
+    font-size: 7px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Floating route map: anchored bottom-left of .playback-left.
+   Default 800x800, shrinks via max-* when viewport is small. */
+.map-portrait {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    top: auto;
+    right: auto;
+    width: 300px;
+    height: 300px;
+    max-width: calc(100% - 32px);
+    max-height: calc(100% - 32px);
+    background: #eef1f5;
+    border: 2px solid rgba(255,255,255,0.45);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+    z-index: 100;
+}
+.map-portrait .graph-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    background: transparent;
+    z-index: 2;
+}
+.map-portrait .graph-container canvas { background: transparent !important; }
+
+/* Playback bar — below render view, centered. Moved out of map. */
+.playback-bar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.95);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -2px 8px rgba(15, 23, 42, 0.08);
+    flex-wrap: wrap;
+}
+.playback-bar input[type="range"] {
+    min-width: 240px;
+    flex: 1 1 auto;
+    max-width: 600px;
+}
+.playback-bar .step-indicator {
+    font-variant-numeric: tabular-nums;
+    min-width: 80px;
+    text-align: center;
+}
+
+/* Bottom half: persona (1/3) | env timelines (2/3) */
+.playback-right {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 50%;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: 100%;
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+.timeline-panel { padding: 10px 14px 12px; }
+.timeline-panel .timeline-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.timeline-panel .timeline-head .title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+/* Env checkbox row */
+.env-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    margin-bottom: 8px;
+}
+.env-checkboxes label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    background: var(--surface);
+    user-select: none;
+}
+.env-checkboxes label:has(input:checked) {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #ffffff;
+    font-weight: 600;
+}
+.env-checkboxes input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+    width: 14px;
+    height: 14px;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+}
+.env-checkboxes input[type="checkbox"]:checked {
+    background: #ffffff;
+    border-color: #ffffff;
+}
+.env-checkboxes input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border: solid var(--ink);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Global chart-size controls (width %, height px) */
+.env-size-controls {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 4px 0 10px;
+    border-bottom: 1px dashed var(--border);
+    margin-bottom: 8px;
+}
+.env-size-controls label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+.env-size-controls label span {
+    color: var(--accent);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    min-width: 38px;
+}
+.env-size-controls input[type="range"] {
+    accent-color: var(--accent);
+    width: 130px;
+}
+.env-chart-type-switch {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    align-self: center;
+}
+.env-chart-type-switch .env-ct-btn {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border: none;
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1.2;
+}
+.env-chart-type-switch .env-ct-btn + .env-ct-btn {
+    border-left: 1px solid var(--border);
+}
+.env-chart-type-switch .env-ct-btn.active {
+    background: var(--accent);
+    color: #fff;
+}
+.env-chart-type-switch .env-ct-btn:hover:not(.active) {
+    color: var(--accent);
+}
+
+/* Stack of env chart rows */
+.env-charts-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* One env chart row layout:
+ * [y-title] [y-tick-col] [plot-col] [avg-side]
+ * Tick labels and titles live OUTSIDE the stretched SVG so they keep a
+ * constant font size regardless of the chart's width/height sliders.
+ */
+.env-bar-row {
+    display: flex;
+    flex-direction: column;
+    gap:5px;
+}
+.env-bar-row .bar-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+    font-size: 11px;
+}
+.env-bar-row .bar-head > :not(.bar-title) {
+    margin-left: auto;
+}
+.env-bar-row .bar-head > :not(.bar-title) ~ :not(.bar-title) {
+    margin-left: 0;
+}
+.env-bar-row .bar-title {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 12px;
+}
+.env-bar-row .bar-meta {
+    color: var(--text-muted);
+    font-size: 10px;
+}
+.env-bar-main {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    width: var(--chart-width, 100%);
+    max-width: 100%;
+}
+
+/* Y-axis rotated title column — hidden (titles duplicated the chart title) */
+.env-bar-ytitle-col { display: none; }
+.env-bar-ytitle { display: none; }
+
+/* Y-tick label column, positioned absolutely alongside the chart */
+.env-bar-ylabels {
+    flex: 0 0 auto;
+    width: 36px;
+    position: relative;
+    height: var(--chart-height, 110px);
+}
+.env-bar-ylabels .ytick {
+    position: absolute;
+    right: 4px;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* Plot + x-axis column */
+.env-bar-plot-col {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+.env-bar-plot-box {
+    position: relative;
+    height: var(--chart-height, 110px);
+    width: 100%;
+}
+.env-bar-chart {
+    width: 100%;
+    height: 100%;
+    display: block;
+    /* Frame removed — only grid lines remain inside the plot area. */
+}
+.env-bar-chart .bar { stroke: none; }
+.env-bar-chart .bar.current {
+    stroke: #2d3436;
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+}
+.env-bar-chart .env-line {
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+.env-bar-chart .env-dot { stroke: none; }
+.env-bar-chart .env-dot.current {
+    stroke: #2d3436;
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+}
+.env-bar-chart .grid-line {
+    stroke: #eef1f5;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+}
+.env-bar-chart .x-grid-line {
+    opacity: 0.55;
+}
+.env-bar-chart .axis-line {
+    /* Hidden — frame removed; only grid lines remain visible. */
+    display: none;
+}
+.env-bar-chart .env-line-fill {
+    stroke: none;
+    /* fill + fill-opacity are set inline so colour follows the line colour. */
+}
+.env-bar-chart .avg-line {
+    stroke: #2d3436;
+    stroke-width: 1.2;
+    stroke-dasharray: 4, 3;
+    opacity: 0.8;
+    vector-effect: non-scaling-stroke;
+}
+
+/* X-axis labels row */
+.env-bar-xlabels {
+    position: relative;
+    height: 14px;
+    margin-top: 2px;
+}
+.env-bar-xlabels .xtick {
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.env-bar-xtitle {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 2px;
+}
+
+/* Right-of-chart avg label box (aligned with the dashed avg line) */
+.env-bar-avg-side {
+    position: relative;
+    width: 84px;
+    flex-shrink: 0;
+    font-size: 10px;
+    color: var(--text);
+    height: var(--chart-height, 110px);
+}
+.env-bar-avg-side .avg-marker {
+    position: absolute;
+    left: 4px;
+    right: 0;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    font-family: monospace;
+    font-weight: 600;
+}
+.env-bar-avg-side .avg-marker .k {
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-right: 4px;
+}
+
+/* Custom Y-axis range config */
+.env-axis-config {
+    margin: 0 0 8px;
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    background: #fafbfc;
+}
+.env-axis-config summary {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 8px;
+    user-select: none;
+}
+.env-axis-config summary .hint {
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 10px;
+    margin-left: 6px;
+}
+.env-axis-config[open] summary { border-bottom: 1px solid var(--border); }
+.env-axis-rows {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto auto auto;
+    gap: 4px 10px;
+    padding: 8px 10px 10px;
+    font-size: 11px;
+}
+.env-axis-rows .metric-color-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.env-axis-rows input.metric-color {
+    width: 28px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: transparent;
+    cursor: pointer;
+}
+.env-axis-rows .metric-color-status {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 700;
+    color: var(--text-muted);
+    min-width: 38px;
+}
+.env-axis-rows .metric-color-status.on {
+    color: var(--accent);
+}
+.env-axis-rows .hdr {
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.env-axis-rows .label {
+    display: flex;
+    align-items: center;
+    color: var(--text);
+    font-weight: 600;
+}
+.env-axis-rows input[type="number"] {
+    width: 60px;
+    padding: 2px 4px;
+    font-size: 11px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-variant-numeric: tabular-nums;
+}
+.env-axis-rows .reset-btn {
+    font-size: 10px;
+    padding: 2px 6px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+}
+.env-axis-rows .reset-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* Body chart (Fatigue + Heat Load) */
+.timeline-canvas-wrap {
+    height: var(--body-chart-height, 180px);
+    width: var(--body-chart-width, 100%);
+    max-width: 100%;
+    position: relative;
+}
+.timeline-canvas-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.env-empty {
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 8px 4px;
+    text-align: center;
+}
+
+/* ---------- Rendered-view block (left column, above map) ---------- */
+
+.pb-render-block {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    overflow: hidden;
+}
+.pb-render-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    min-height: 20px;
+}
+.pb-render-head .title {
+    font-weight: 700;
+    color: var(--text);
+}
+
+/* Image area fills the top half — overlays (head, nav, caption) are absolute. */
+.routes-playback-img-side {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    gap: 0;
+    display: block;
+}
+.route-img-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 11px;
+}
+.route-img-nav .mini-btn { padding: 2px 10px; }
+.route-img-nav .route-img-index {
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    min-width: 80px;
+    text-align: center;
+    font-size: 11px;
+}
+.route-current-wrap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: hidden;
+}
+.route-image-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.route-current-wrap img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: transparent;
+    border-radius: 0;
+}
+.route-current-wrap .env-empty,
+.route-current-wrap .thumb-missing {
+    color: var(--text-muted);
+    background: #f1f5f9;
+    font-size: 11px;
+    padding: 24px 10px;
+    border-radius: 4px;
+    text-align: center;
+    width: 100%;
+}
+.route-current-caption {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    min-height: 14px;
+}
+
+/* ---------- Floating reasoning bubble (overlaid on rendered view) ---------- */
+
+.reasoning-bubble {
+    position: fixed;
+    top: 120px;
+    left: 32px;
+    width: 260px;
+    height: 220px;
+    min-width: 180px;
+    min-height: 120px;
+    max-width: 90vw;
+    max-height: 90vh;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid rgba(9,132,227,0.35);
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    backdrop-filter: blur(4px);
+    cursor: default;
+    resize: both;
+}
+.reasoning-bubble[hidden] { display: none; }
+.reasoning-bubble-head {
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(9,132,227,0.08);
+    border-bottom: 1px solid rgba(9,132,227,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: move;
+    user-select: none;
+    flex-shrink: 0;
+}
+.reasoning-bubble-close {
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    line-height: 1;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0 4px;
+}
+.reasoning-bubble-close:hover { color: var(--accent); }
+.reasoning-bubble-body {
+    padding: 6px 10px 8px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--text);
+    font-style: italic;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    background: rgba(255,255,255,0.7);
+}
+.reasoning-bubble-body .step-head {
+    font-style: normal;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+    font-size: 11px;
+}
+.reasoning-bubble-body .reasoning-empty {
+    color: var(--text-muted);
+    font-style: normal;
+    text-align: center;
+    padding: 4px 2px;
+}
+/* Free-floating bubble — no speech-bubble pointer since it lives anywhere on page. */
+
+/* ---------- Persona card + pie two-column panel ---------- */
+
+.persona-composition-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 12px;
+    align-items: stretch;
+    padding: 4px 0 0;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.persona-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text);
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+}
+.persona-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), #6c5ce7);
+}
+.persona-card-empty {
+    color: var(--text-muted);
+    text-align: center;
+    padding: 24px 4px;
+    margin: auto;
+    font-size: 12px;
+}
+.persona-card .pc-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1.2;
+    margin-top: 2px;
+    word-break: break-word;
+}
+.persona-card .pc-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: -2px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.persona-card .pc-identity {
+    font-size: 12px;
+    color: var(--text);
+    padding-top: 6px;
+    border-top: 1px dashed var(--border);
+}
+.persona-card .pc-priorities {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+.persona-card .pc-params {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 10px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--border);
+    font-size: 11px;
+}
+.persona-card .pc-params .k {
+    color: var(--text-muted);
+}
+.persona-card .pc-params .v {
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+
+.seg-rose-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.seg-rose-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.seg-rose-block.empty { display: none; }
+.seg-rose-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
+}
+.seg-rose-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.seg-rose-title-row .seg-rose-title {
+    flex: 1 1 auto;
+}
+.seg-rose-canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    min-height: 220px;
+    max-height: 280px;
+}
+.seg-rose-canvas-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+}
+.seg-color-pickers {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 10px;
+    padding: 4px 6px 0;
+}
+.seg-color-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    color: var(--text-muted);
+}
+.seg-color-row input.seg-color-input {
+    width: 22px;
+    height: 18px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: transparent;
+    cursor: pointer;
+}
+.seg-color-row .seg-color-label {
+    font-weight: 600;
+    color: var(--text);
+}
+.seg-color-row .seg-color-reset {
+    font-size: 11px;
+    line-height: 1;
+    padding: 1px 4px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+}
+.seg-color-row .seg-color-reset:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+@media (max-width: 900px) {
+    .persona-composition-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Panel reorder up/down buttons (head) */
+.panel-reorder {
+    display: inline-flex;
+    gap: 2px;
+    margin-right: 4px;
+}
+.panel-reorder .mini-btn {
+    padding: 1px 6px;
+    font-size: 11px;
+    line-height: 1.1;
+}
+.panel-reorder .mini-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Mini button (used for Download combined) */
+.mini-btn {
+    font-size: 11px;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    line-height: 1.3;
+}
+.mini-btn:hover:not(:disabled) {
+    background: rgba(9,132,227,0.08);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.mini-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ============================================================
+   Dual-pane layout (default for playback page)
+   Designed for Yoga Book 9i waterfall (~2880 x 3600) but adapts
+   gracefully to single monitors via max-width/max-height on map.
+
+   Top half:    render view fills, route map floats bottom-left
+                (800x800 default, top-right corner resize).
+   Bottom half: persona panel (left 1/3) | env timelines (2/3).
+                Inside persona panel: card on top, pie below.
+   ============================================================ */
+
+html, body {
+    height: 100vh;
+    overflow: hidden;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+.controls-bar { flex: 0 0 auto; }
+.page-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+}
+
+.pb-render-head {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    right: 12px;
+    z-index: 60;
+    margin: 0;
+    padding: 4px 10px;
+    color: #fff;
+    background: rgba(0,0,0,0.5);
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+}
+.pb-render-head .mini-btn {
+    color: #fff;
+    border-color: rgba(255,255,255,0.4);
+}
+
+.route-img-nav {
+    position: absolute;
+    bottom: 10px;
+    right: 16px;
+    z-index: 60;
+    background: rgba(0,0,0,0.55);
+    padding: 4px 10px;
+    border-radius: 4px;
+    color: #fff;
+}
+.route-img-nav .route-img-index { color: #9ff7f4; }
+.route-img-nav .mini-btn {
+    color: #fff;
+    border-color: rgba(255,255,255,0.4);
+}
+
+.route-current-caption {
+    position: absolute;
+    top: 44px;
+    left: 12px;
+    z-index: 60;
+    color: #fff;
+    background: rgba(0,0,0,0.5);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    min-height: 0;
+    max-width: 60vw;
+    text-align: left;
+}
+
+/* Top-right resize handle on the floating map */
+.map-portrait .map-resize-handle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 22px;
+    height: 22px;
+    cursor: nesw-resize;
+    z-index: 200;
+    background:
+        linear-gradient(225deg,
+            transparent 0%,
+            transparent 30%,
+            rgba(9,132,227,0.95) 30%,
+            rgba(9,132,227,0.95) 45%,
+            transparent 45%,
+            transparent 55%,
+            rgba(9,132,227,0.95) 55%,
+            rgba(9,132,227,0.95) 70%,
+            transparent 70%);
+}
+.map-portrait .map-resize-handle:hover {
+    background-color: rgba(9,132,227,0.15);
+}
+
+#routes-gallery-panel {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+    border-right: 1px solid var(--border);
+    border-radius: 0;
+    overflow: auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+#env-panel {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    border-radius: 0;
+    overflow: auto;
+    height: 100%;
+}
+
+/* Diagnostic / route-nav overlays removed per user request */
+#info-strip,
+.info-strip.state-hud,
+.route-current-caption,
+.route-img-nav,
+#routes-gallery-subtitle {
+    display: none !important;
+}
+
+/* ============================================================
+   Circular overlay buttons on the render view
+   ============================================================ */
+
+.circle-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    background: rgba(20, 28, 40, 0.65);
+    color: #fff;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    transition: background 0.15s, transform 0.1s, border-color 0.15s;
+    user-select: none;
+}
+.circle-btn:hover:not(:disabled) {
+    background: rgba(20, 28, 40, 0.88);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+.circle-btn:active { transform: scale(0.94); }
+.circle-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.circle-btn .ic { font-size: 20px; line-height: 1; }
+.circle-btn input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+/* Active state: checkbox-wrap with checked input, or .active class */
+.circle-btn:has(input[type="checkbox"]:checked),
+.circle-btn.active {
+    background: rgba(9, 132, 227, 0.85);
+    border-color: rgba(255, 255, 255, 0.85);
+}
+
+/* Top-right: combined-view download */
+.dl-circle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 60;
+}
+
+/* Left-middle: vertical column of action toggles */
+.render-overlay-col {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Bottom-left: map toggle (always visible, sits above the map when map is shown) */
+.map-toggle-circle {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    z-index: 150;
+}
+
+/* Map hidden state */
+body.map-hidden .map-portrait { display: none; }
+
+/* Result selector restyled as a button-like select in the persona panel head */
+.result-select-btn {
+    margin-left: auto;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: #fff;
+    font-size: 13px;
+    color: var(--text);
+    cursor: pointer;
+    max-width: 260px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.result-select-btn:hover {
+    border-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(9, 132, 227, 0.18);
+}
+.result-select-btn:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.25);
+}
+
+/* ---------- Playback dark theme ---------- */
+
+body {
+    --bg: #2a2a2a;
+    --surface: #343434;
+    --border: rgba(255, 255, 255, 0.14);
+    --text: #e0e0e0;
+    --text-muted: #a7a7a7;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.navbar {
+    background: rgba(42, 42, 42, 0.85);
+}
+.navbar h1,
+.navbar h1 .brand-light {
+    color: #f0f0f0;
+}
+.navbar a {
+    color: #999999;
+}
+.navbar a:hover,
+.navbar a.active {
+    color: #f0f0f0;
+}
+
+.playback-bar {
+    background: rgba(42, 42, 42, 0.96);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.env-axis-config {
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.persona-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+}
+
+.reasoning-bubble {
+    background: rgba(52, 52, 52, 0.96);
+}
+.reasoning-bubble-head {
+    background: rgba(9, 132, 227, 0.16);
+}
+.reasoning-bubble-body {
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.route-current-wrap .env-empty,
+.route-current-wrap .thumb-missing {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.result-select-btn {
+    background: var(--surface);
+}
+
+.env-axis-rows input[type="number"],
+.basemap-panel input[type="text"],
+.basemap-panel input[type="file"] {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+}
+
+button:hover {
+    color: #f0f0f0;
+}
+
+.env-bar-chart .bar.current,
+.env-bar-chart .env-dot.current,
+.env-bar-chart .avg-line {
+    stroke: rgba(240, 240, 240, 0.85);
+}
+.env-bar-chart .grid-line {
+    stroke: rgba(240, 240, 240, 0.14);
+}

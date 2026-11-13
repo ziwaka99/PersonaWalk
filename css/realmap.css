@@ -1,0 +1,1217 @@
+/* ============================================================
+   Real Map page — dual-pane layout (matches playback page)
+   Top half: map view + embedded sidebar (1/2 viewport, shortened to
+             leave a buffer for the screen seam).
+   Gap:     32px (≈ half navbar) — empty band between the two panes.
+   Bottom:  per-point metrics charts (fills remaining viewport).
+   ============================================================ */
+
+html, body {
+    height: 100vh;
+    overflow: hidden;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.realmap-grid {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    gap: 32px;
+    padding: 0;
+    margin: 0;
+    background: var(--bg);
+}
+
+.realmap-grid .panel { display: flex; flex-direction: column; min-height: 0; }
+.realmap-grid .panel-header { display: flex; align-items: center; gap: 8px; }
+
+/* Bottom (visually): map panel — fills remaining viewport */
+.realmap-grid .map-panel {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    border-radius: 0;
+    order: 2;
+}
+
+/* Top (visually): render view (1/3) | per-point metrics (2/3) */
+.realmap-grid .realmap-bottom {
+    flex: 0 0 calc(50vh - 85px);
+    min-height: 0;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 16px;
+    padding: 8px 8px 0;
+    order: 1;
+}
+.realmap-grid .realmap-bottom > .view-panel {
+    grid-column: 1;
+}
+.realmap-grid .realmap-bottom > .bars-panel {
+    grid-column: 2;
+    border-radius: 0;
+    min-width: 0;
+}
+
+/* Override the floating-overlay view-panel styles when it lives in the
+   bottom row instead of inside the map. */
+.realmap-bottom .view-panel {
+    position: relative;
+    left: auto;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    max-width: none;
+    max-height: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    resize: none;
+    cursor: default;
+    overflow: hidden;
+    z-index: auto;
+}
+.realmap-bottom .view-panel-head { cursor: default; }
+.realmap-bottom .view-panel-body {
+    flex: 1 1 auto;
+    aspect-ratio: auto;
+    min-height: 0;
+}
+.realmap-bottom .view-panel-body img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+/* The Dir1/Dir2 overlay stays in the corner of the now-in-flow panel. */
+.realmap-bottom .view-dir-switch.view-dir-switch-overlay {
+    top: 6px;
+    left: 6px;
+}
+
+/* ---------- In-map sidebar ---------- */
+
+.map-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: calc(100vw / 3);
+    max-height: 100%;
+    background: rgba(255,255,255,0.94);
+    border: none;
+    border-right: 1px solid rgba(148, 163, 184, 0.26);
+    border-radius: 0;
+    box-shadow: none;
+    z-index: 24;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.55) rgba(226, 232, 240, 0.55);
+    overscroll-behavior: contain;
+    backdrop-filter: blur(10px);
+}
+/* Children must keep their natural height; otherwise flex shrinks each
+   <details> to fit the sidebar and the expanded body gets visually clipped
+   while scrollHeight stays pinned to clientHeight (no scrollbar appears). */
+.map-sidebar > * { flex-shrink: 0; }
+.map-sidebar::-webkit-scrollbar {
+    width: 10px;
+}
+.map-sidebar::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.55);
+    border-radius: 999px;
+}
+.map-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.55);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+.map-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(71, 85, 105, 0.72);
+    background-clip: padding-box;
+}
+.map-sidebar-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 16px 12px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    background: linear-gradient(180deg, rgba(248,250,252,0.98), rgba(255,255,255,0.92));
+}
+.map-sidebar-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #0f172a;
+}
+.map-sidebar-subtitle {
+    margin-top: 3px;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--text-muted);
+}
+.map-sidebar-status {
+    min-height: 16px;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+}
+.map-sidebar-tools {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(248,250,252,0.7);
+}
+.map-sidebar-tools button {
+    width: 100%;
+}
+.map-sidebar.is-hidden {
+    display: none;
+}
+/* Floating button stack — shown only when the in-map sidebar is hidden.
+   Contains the "Layers" reopen button + the "Fit View" shortcut. */
+.sidebar-show-stack {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    z-index: 25;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.sidebar-show-stack[hidden] { display: none; }
+.sidebar-show-btn {
+    position: static;
+    padding: 8px 12px;
+    border: 1px solid rgba(15, 23, 42, 0.18);
+    border-radius: 6px;
+    background: rgba(255,255,255,0.94);
+    color: #0f172a;
+    font-size: 12px;
+    font-weight: 800;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    text-align: left;
+}
+.sidebar-show-btn:hover {
+    background: #fff;
+    border-color: rgba(9, 132, 227, 0.45);
+    color: var(--accent);
+}
+.map-export-panel {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    z-index: 25;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 1px solid rgba(15, 23, 42, 0.16);
+    border-radius: 6px;
+    background: rgba(255,255,255,0.94);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
+    backdrop-filter: blur(8px);
+}
+.map-export-panel button {
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 6px 10px;
+}
+.map-export-panel label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.map-export-panel .val-num {
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+}
+.map-export-panel input[type="range"] {
+    width: 84px;
+    accent-color: var(--accent);
+}
+.map-sidebar > .layer-card,
+.layer-subcard {
+    border-top: 1px solid rgba(148, 163, 184, 0.16);
+}
+.map-sidebar > .layer-card:first-of-type {
+    border-top: none;
+}
+.layer-card {
+    overflow: hidden;
+}
+.layer-card > summary,
+.layer-subcard > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    user-select: none;
+}
+.layer-card > summary::-webkit-details-marker,
+.layer-subcard > summary::-webkit-details-marker {
+    display: none;
+}
+.layer-card > summary {
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #334155;
+    background: rgba(255,255,255,0.82);
+}
+.layer-card[open] > summary {
+    background: rgba(248,250,252,0.92);
+}
+.layer-card > summary::after,
+.layer-subcard > summary::after {
+    content: '+';
+    font-size: 14px;
+    color: #64748b;
+}
+.layer-card[open] > summary::after,
+.layer-subcard[open] > summary::after {
+    content: '-';
+}
+.layer-card-body {
+    padding: 0 16px 16px;
+    overflow: visible;
+}
+.map-sidebar .layer-card > .basemap-panel-body,
+.map-sidebar .layer-card > .routes-panel-body {
+    padding: 12px 16px 18px;
+    max-height: none;
+    overflow: visible;
+}
+.map-sidebar .layer-subcard-body {
+    padding: 10px 12px 14px;
+    max-height: none;
+    overflow: visible;
+}
+.layer-switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+.layer-switch input[type="checkbox"] {
+    margin: 0;
+    accent-color: var(--accent);
+}
+.basemap-panel-body label.layer-switch {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+.basemap-panel-body label.layer-switch span {
+    color: var(--text);
+    font-weight: 700;
+}
+.layer-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.layer-actions button {
+    flex: 1;
+    font-size: 11px;
+}
+.layer-order-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.layer-order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.layer-order-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 6px;
+    align-items: center;
+    padding: 5px 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    font-size: 11px;
+    color: var(--text);
+}
+.layer-order-row .layer-order-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+}
+.layer-order-row button {
+    width: 24px;
+    height: 22px;
+    padding: 0;
+    border-radius: 4px;
+    line-height: 1;
+}
+.layer-order-row button:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+.layer-subcard {
+    margin-top: 10px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #f8fafc;
+}
+.layer-subcard > summary {
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #475569;
+}
+/* Checkbox + title sit directly on the summary so users can enable/disable
+   each analysis layer without expanding its styling body. */
+.layer-subcard > summary .subcard-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    flex: 1;
+    min-width: 0;
+}
+.layer-subcard > summary .subcard-toggle input[type="checkbox"] {
+    margin: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.layer-subcard > summary .subcard-toggle span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.layer-subcard-body {
+    padding: 10px 12px 14px;
+}
+.map-sidebar .routes-list {
+    max-height: 240px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+.map-sidebar .routes-list::-webkit-scrollbar {
+    width: 8px;
+}
+.map-sidebar .routes-list::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.7);
+    border-radius: 999px;
+}
+.map-sidebar .layer-card:last-of-type {
+    padding-bottom: 18px;
+}
+
+/* ---------- Floating rendered-view panel (on top of map) ---------- */
+
+.view-panel {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    width: 280px;
+    min-width: 180px;
+    max-width: calc(100% - 20px);
+    max-height: calc(100% - 20px);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    z-index: 22;
+    display: flex;
+    flex-direction: column;
+    resize: horizontal;
+    overflow: hidden;
+    cursor: move;
+    user-select: none;
+}
+.view-panel.is-hidden {
+    display: none;
+}
+.view-panel-head {
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: #fafbfc;
+    flex-shrink: 0;
+    cursor: move;
+    user-select: none;
+}
+.view-panel-head[hidden] { display: none; }
+.view-panel-title {
+    color: var(--accent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 12px;
+}
+.view-dir-switch {
+    display: inline-flex;
+    gap: 2px;
+}
+.view-dir-switch.view-dir-switch-overlay {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 3;
+    gap: 4px;
+    cursor: default;
+}
+.view-dir-switch button {
+    font-size: 11px;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: rgba(255,255,255,0.85);
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+    backdrop-filter: blur(3px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+}
+.view-dir-switch.view-dir-switch-overlay button {
+    font-weight: 700;
+}
+.view-dir-switch button.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+.view-panel-body {
+    position: relative;
+    padding: 0;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+    background: transparent;
+}
+.view-panel-body img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+    background: transparent;
+}
+.view-panel-body .view-cap {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    background: rgba(0,0,0,0.35);
+    padding: 2px 8px;
+    border-radius: 3px;
+    pointer-events: none;
+}
+.view-panel-body .view-empty,
+.view-panel-body .view-missing {
+    padding: 20px 10px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text);
+    background: rgba(255,255,255,0.85);
+    border-radius: 6px;
+    margin: auto;
+}
+
+/* ---------- Square map ---------- */
+
+.map-panel { overflow: hidden; }
+
+.map-square {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    background: #eef1f5;
+    overflow: hidden;
+    /* Keep a square-ish look via aspect-ratio. flex:1 keeps it filling. */
+}
+.map-square .graph-container {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    z-index: 2;             /* keep vis canvas above the basemap layer */
+}
+
+/* Hidden loader image — the actual basemap is painted onto the vis-network
+   canvas in the beforeDrawing callback so it pans/zooms with the graph. */
+.map-print-frame {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: calc(100% - 16px);
+    aspect-ratio: 1 / 1;
+    width: auto;
+    max-width: calc(100% - 16px);
+    z-index: 4;
+    pointer-events: none;
+    border: 2px dashed rgba(15, 23, 42, 0.42);
+    box-shadow:
+        0 0 0 9999px rgba(15, 23, 42, 0.06),
+        inset 0 0 0 1px rgba(255,255,255,0.72);
+}
+.map-print-frame::after {
+    content: 'Print area';
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.88);
+    color: #334155;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.basemap-img {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: -1;
+    left: -9999px;
+    top: -9999px;
+}
+.basemap-img.hidden { display: none; }
+
+/* vis-network canvas is injected inside .graph-container; force transparent bg */
+.map-square .graph-container canvas {
+    background: transparent !important;
+}
+
+/* Floating basemap-control panel */
+.basemap-panel {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 260px;
+    background: rgba(255,255,255,0.97);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    z-index: 20;
+    display: none;
+}
+.basemap-panel.visible { display: block; }
+.basemap-panel-head {
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fafbfc;
+}
+.basemap-panel-head button {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0 6px;
+}
+.basemap-panel-body {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 460px;
+    overflow-y: auto;
+}
+.basemap-panel-body label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.basemap-panel-body label span {
+    float: right;
+    color: var(--accent);
+    font-weight: 700;
+}
+.basemap-panel-body label span.val-num {
+    font-variant-numeric: tabular-nums;
+}
+.basemap-panel-body label span.val-hex {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+}
+.basemap-upload-status {
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(9, 132, 227, 0.08);
+    border: 1px solid rgba(9, 132, 227, 0.22);
+    padding: 5px 8px;
+    border-radius: 4px;
+    word-break: break-all;
+}
+.basemap-panel-body input[type="range"] {
+    accent-color: var(--accent);
+    width: 100%;
+}
+.basemap-panel-body input[type="text"] {
+    font-family: monospace;
+    font-size: 11px;
+    padding: 4px 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+.basemap-panel-body input[type="color"] {
+    width: 36px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+/* Graph-style panel: stack below basemap panel when both open */
+.graphstyle-panel {
+    top: 10px;
+    right: 280px;  /* sits to the left of .basemap-panel (260px wide + gap) */
+    width: 240px;
+}
+@media (max-width: 1280px) {
+    .graphstyle-panel { right: 10px; top: 340px; }
+}
+
+/* Map layers panel */
+.layers-panel {
+    top: 10px;
+    right: 540px;  /* sits left of .graphstyle-panel (240px + gap) */
+    width: 260px;
+}
+@media (max-width: 1280px) {
+    .layers-panel { right: 10px; top: 670px; }
+}
+.layers-panel select {
+    font-size: 11px;
+    padding: 3px 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    font-family: inherit;
+}
+.layers-legend {
+    min-height: 14px;
+    padding: 4px 6px;
+    font-size: 10px;
+    color: var(--text-muted);
+    background: #f8f9fa;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.layers-legend:empty { display: none; }
+.layers-legend .lg-gradient {
+    flex: 1;
+    height: 10px;
+    border-radius: 2px;
+    min-width: 80px;
+}
+.layers-legend .lg-label {
+    font-variant-numeric: tabular-nums;
+}
+.basemap-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+.basemap-actions button { flex: 1; font-size: 11px; padding: 4px 8px; }
+.basemap-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.45;
+    background: #f8f9fa;
+    padding: 6px 8px;
+    border-radius: 4px;
+}
+
+/* ---------- Floating persona routes panel ---------- */
+.routes-panel {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    width: 300px;
+    max-height: calc(100% - 20px);
+    background: rgba(255,255,255,0.97);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    z-index: 21;
+    display: none;
+    flex-direction: column;
+}
+.routes-panel.visible { display: flex; }
+.routes-panel-head {
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fafbfc;
+    flex-shrink: 0;
+}
+.routes-panel-head button {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0 6px;
+}
+.routes-panel-body {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+}
+.routes-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.45;
+    background: #f8f9fa;
+    padding: 6px 8px;
+    border-radius: 4px;
+}
+.route-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.route-actions button {
+    font-size: 11px;
+    padding: 5px 8px;
+}
+.route-overlap-toggle {
+    margin-top: 2px;
+}
+.routes-panel-body label:not(.route-row),
+.map-sidebar .routes-panel-body label:not(.route-row) {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.routes-panel-body label.layer-switch,
+.map-sidebar .routes-panel-body label.layer-switch {
+    flex-direction: row;
+    align-items: center;
+    color: var(--text);
+}
+.routes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.route-row {
+    display: grid;
+    grid-template-columns: auto 28px 1fr;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 6px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 12px;
+}
+.route-row:hover {
+    background: #f8f9fa;
+    border-color: var(--border);
+}
+.route-row input[type="checkbox"] {
+    accent-color: var(--accent);
+    margin: 0;
+}
+.route-row input[type="color"] {
+    width: 28px;
+    height: 22px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+}
+.route-row .route-label {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+}
+.route-row .route-label .title {
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.route-row .route-label .sub {
+    font-size: 10px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.route-row.loading {
+    opacity: 0.7;
+}
+
+/* ---------- RIGHT: Per-point bar charts ---------- */
+
+.bars-panel .bars-body {
+    padding: 8px 12px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+.bars-body .bar-row {
+    margin-bottom: 16px;
+}
+.bars-body .bar-row:last-child { margin-bottom: 0; }
+
+.bar-row-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+.bar-row-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+}
+.bar-row-meta {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+/* Horizontal-scrolling wrapper. SVG renders at natural pixel size (20px/step)
+   so bars stay uniformly wide and text doesn't distort. */
+.bar-chart-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    scrollbar-width: thin;
+}
+.bar-chart-wrap::-webkit-scrollbar { height: 8px; }
+.bar-chart-wrap::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+.bar-chart {
+    display: block;
+    font-family: system-ui, sans-serif;
+}
+.bar-chart .bar { stroke: none; }
+.bar-chart .bar:hover {
+    stroke: #2d3436;
+    stroke-width: 1;
+}
+.bar-chart .axis-line {
+    stroke: #6c7a89;
+    stroke-width: 1;
+}
+.bar-chart .grid-line {
+    stroke: #eef1f5;
+    stroke-width: 1;
+}
+.bar-chart .axis-tick {
+    stroke: #6c7a89;
+    stroke-width: 1;
+}
+.bar-chart .axis-label {
+    font-size: 9px;
+    fill: var(--text-muted);
+}
+.bar-chart .axis-title {
+    font-size: 10px;
+    fill: var(--text);
+    font-weight: 600;
+}
+
+/* ---------- Route header summary (top of bars panel) ---------- */
+
+.bars-route-summary {
+    padding: 8px 12px 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-size: 12px;
+}
+.bars-route-summary strong {
+    font-size: 15px;
+    color: var(--accent);
+}
+
+/* ---------- Right-column metric picker ---------- */
+
+.bars-metric-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    padding: 6px 12px 8px;
+    border-bottom: 1px solid var(--border);
+    background: #fafbfc;
+}
+.bars-metric-picker label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 2px 7px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    background: var(--surface);
+    user-select: none;
+}
+.bars-metric-picker label:has(input:checked) {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #ffffff;
+    font-weight: 600;
+}
+.bars-metric-picker input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+    width: 14px;
+    height: 14px;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+}
+.bars-metric-picker input[type="checkbox"]:checked {
+    background: #ffffff;
+    border-color: #ffffff;
+}
+.bars-metric-picker input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border: solid var(--ink);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Graph-style panel section heading */
+.gs-section-title {
+    margin: 6px 0 0;
+    padding-top: 6px;
+    border-top: 1px dashed var(--border);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1280px) {
+    .realmap-grid {
+        grid-template-columns: minmax(0, 6fr) minmax(260px, 5fr);
+        gap: 12px;
+    }
+    .map-sidebar {
+        width: calc(100vw / 3);
+    }
+    .view-panel {
+        width: 240px;
+    }
+}
+
+/* ---------- Real Map dark surfaces ---------- */
+
+.realmap-page .map-sidebar {
+    background: rgba(52, 52, 52, 0.94);
+    border-right-color: var(--border);
+    scrollbar-color: rgba(212, 212, 212, 0.45) rgba(255, 255, 255, 0.08);
+}
+.realmap-page .map-sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.08);
+}
+.realmap-page .map-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(212, 212, 212, 0.42);
+}
+.realmap-page .map-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(240, 240, 240, 0.58);
+}
+.realmap-page .map-sidebar-head {
+    border-bottom-color: var(--border);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.045));
+}
+.realmap-page .map-sidebar-title,
+.realmap-page .layer-card > summary,
+.realmap-page .layer-subcard > summary {
+    color: var(--text);
+}
+.realmap-page .map-sidebar-tools,
+.realmap-page .layer-card > summary,
+.realmap-page .layer-card[open] > summary,
+.realmap-page .view-panel-head,
+.realmap-page .basemap-panel-head,
+.realmap-page .routes-panel-head,
+.realmap-page .bars-metric-picker {
+    background: rgba(255, 255, 255, 0.045);
+}
+.realmap-page .map-sidebar-tools,
+.realmap-page .map-sidebar > .layer-card,
+.realmap-page .layer-subcard {
+    border-color: var(--border);
+}
+.realmap-page .layer-card > summary::after,
+.realmap-page .layer-subcard > summary::after {
+    color: var(--text-muted);
+}
+.realmap-page .sidebar-show-btn,
+.realmap-page .map-export-panel,
+.realmap-page .basemap-panel,
+.realmap-page .routes-panel {
+    background: rgba(52, 52, 52, 0.95);
+    border-color: var(--border);
+    color: var(--text);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.26);
+}
+.realmap-page .sidebar-show-btn:hover {
+    background: rgba(66, 66, 66, 0.98);
+}
+.realmap-page .layer-order-row,
+.realmap-page .layer-subcard,
+.realmap-page .layers-legend,
+.realmap-page .basemap-hint,
+.realmap-page .routes-hint {
+    background: rgba(255, 255, 255, 0.055);
+}
+.realmap-page .view-dir-switch button {
+    background: rgba(52, 52, 52, 0.88);
+}
+.realmap-page .view-panel-body .view-empty,
+.realmap-page .view-panel-body .view-missing {
+    background: rgba(255, 255, 255, 0.08);
+}
+.realmap-page .map-square {
+    background: #303030;
+}
+.realmap-page .map-print-frame {
+    border-color: rgba(240, 240, 240, 0.42);
+    box-shadow:
+        0 0 0 9999px rgba(0, 0, 0, 0.08),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+.realmap-page .map-print-frame::after {
+    background: rgba(52, 52, 52, 0.9);
+    color: var(--text);
+}
+.realmap-page .graph-footer {
+    background: rgba(255, 255, 255, 0.045);
+}
+.realmap-page .basemap-panel-body input[type="text"],
+.realmap-page .basemap-panel-body input[type="file"] {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+}
+.realmap-page .route-row:hover {
+    background: rgba(255, 255, 255, 0.055);
+}
+.realmap-page .bars-metric-picker label:has(input:checked) {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #f0f0f0;
+}
+.realmap-page .bars-metric-picker input[type="checkbox"]:checked::after {
+    border-color: #2a2a2a;
+}
+.realmap-page .bar-chart .grid-line {
+    stroke: rgba(240, 240, 240, 0.14);
+}
+.realmap-page .bar-chart .axis-line,
+.realmap-page .bar-chart .axis-tick {
+    stroke: rgba(240, 240, 240, 0.34);
+}

@@ -1,0 +1,235 @@
+{
+  "persona_id": "p13",
+  "provider": "openai",
+  "start_node": "305.52,545.03",
+  "goal_node": "791.39,424.53",
+  "outcome": "reached_goal",
+  "path": [
+    "305.52,545.03",
+    "386.69,465.36",
+    "423.33,424.2",
+    "482.66,353.97",
+    "509.16,375.12",
+    "533.0489,390.5598",
+    "563.2483,347.4875",
+    "583.39,318.76",
+    "664.35,366.63",
+    "730.67,398.28",
+    "791.39,424.53"
+  ],
+  "total_steps": 10,
+  "total_distance_m": 645.5959059999999,
+  "total_time_s": 478.2,
+  "final_fatigue": 0.2152,
+  "final_heat": 0.9963,
+  "per_step": [
+    {
+      "step": 1,
+      "node_before": "305.52,545.03",
+      "action": "walk",
+      "next_node": "386.69,465.36",
+      "reasoning": "Even though both options seem hot, the second option has a shorter remaining distance to my goal. My body feels fresh, so I should keep up with my schedule and continue on the path that gets me closer to my destination.",
+      "fatigue_before": 0.0,
+      "heat_before": 0.0,
+      "fatigue_after": 0.0379,
+      "heat_after": 0.1755
+    },
+    {
+      "step": 2,
+      "node_before": "386.69,465.36",
+      "action": "walk",
+      "next_node": "423.33,424.2",
+      "reasoning": "I'm feeling fresh and comfortable, and this option gets me the closest to my goal despite the hot thermal impression. Time is a priority, so I prioritize the shorter remaining heading.",
+      "fatigue_before": 0.0379,
+      "heat_before": 0.1755,
+      "fatigue_after": 0.0563,
+      "heat_after": 0.2606
+    },
+    {
+      "step": 3,
+      "node_before": "423.33,424.2",
+      "action": "walk",
+      "next_node": "482.66,353.97",
+      "reasoning": "I prioritize staying on schedule, and although this path is described as hot, it has a shorter remaining distance to my goal. I'm still feeling fresh and can handle the heat for the sake of time efficiency.",
+      "fatigue_before": 0.0563,
+      "heat_before": 0.2606,
+      "fatigue_after": 0.0869,
+      "heat_after": 0.4025
+    },
+    {
+      "step": 4,
+      "node_before": "482.66,353.97",
+      "action": "walk",
+      "next_node": "509.16,375.12",
+      "reasoning": "I'm still feeling fresh and my heat load is manageable, which allows me to maintain my pace. The path to 509.16,375.12 has a short length and keeps me relatively close to my goal. Since staying on schedule is critical, taking this path aligns with both the need for efficiency and my comfort level.",
+      "fatigue_before": 0.0869,
+      "heat_before": 0.4025,
+      "fatigue_after": 0.0982,
+      "heat_after": 0.4548
+    },
+    {
+      "step": 5,
+      "node_before": "509.16,375.12",
+      "action": "walk",
+      "next_node": "533.0489,390.5598",
+      "reasoning": "I'm feeling relatively fresh, and although the thermal impression is hot, the path to 533.0489,390.5598 is the shortest remaining route to my goal. My priority is sticking to my schedule, so efficiency takes precedence over minor discomforts in heat.",
+      "fatigue_before": 0.0982,
+      "heat_before": 0.4548,
+      "fatigue_after": 0.1077,
+      "heat_after": 0.4987
+    },
+    {
+      "step": 6,
+      "node_before": "533.0489,390.5598",
+      "action": "walk",
+      "next_node": "563.2483,347.4875",
+      "reasoning": "I'm aiming to keep my schedule on track, and the option to 563.2483,347.4875 offers the shortest remaining distance toward my destination from there. Though it's noted to be hot, my fatigue is low and the walk is short, aligning well with my preference for efficiency.",
+      "fatigue_before": 0.1077,
+      "heat_before": 0.4987,
+      "fatigue_after": 0.1253,
+      "heat_after": 0.5799
+    },
+    {
+      "step": 7,
+      "node_before": "563.2483,347.4875",
+      "action": "walk",
+      "next_node": "583.39,318.76",
+      "reasoning": "The option to 583.39,318.76 offers a tree-lined and canyon-like path with a strong breeze, which sounds more comfortable and visually appealing than walking in a hot and enclosed area. Since my focus is to stay on schedule and this path aligns with my goal while providing some relief from heat, it seems like the best choice.",
+      "fatigue_before": 0.1253,
+      "heat_before": 0.5799,
+      "fatigue_after": 0.137,
+      "heat_after": 0.634
+    },
+    {
+      "step": 8,
+      "node_before": "583.39,318.76",
+      "action": "walk",
+      "next_node": "664.35,366.63",
+      "reasoning": "I have a relatively low fatigue level and am feeling mostly fresh, though it is quite hot. The option to 664.35,366.63 offers the shortest remaining distance to my goal at about 141 meters from there. Since my priority is to stick to my schedule and this path aligns with that objective while being somewhat appealing with its tree line and mild breeze, I choose to continue along this route despite the hotter conditions.",
+      "fatigue_before": 0.137,
+      "heat_before": 0.634,
+      "fatigue_after": 0.1683,
+      "heat_after": 0.7793
+    },
+    {
+      "step": 9,
+      "node_before": "664.35,366.63",
+      "action": "walk",
+      "next_node": "730.67,398.28",
+      "reasoning": "I am feeling a bit hot, but not overly fatigued, so I'll continue walking. The option to 730.67,398.28 is tree-lined and appears to have a mild breeze, which should help with the heat. It also leads to the shortest distance to my goal, which aligns perfectly with my plan to keep to my schedule. Opting for a partially shaded path is a good compromise to manage the heat while staying on track.",
+      "fatigue_before": 0.1683,
+      "heat_before": 0.7793,
+      "fatigue_after": 0.1928,
+      "heat_after": 0.8927
+    },
+    {
+      "step": 10,
+      "node_before": "730.67,398.28",
+      "action": "walk",
+      "next_node": "791.39,424.53",
+      "reasoning": "I'm feeling a bit overheated, but my fatigue is low and I want to keep moving to meet my schedule. The option to 791.39,424.53 presents a tree-lined and canyon-like path with the benefit of a mild breeze, which should help manage the heat. Importantly, it leads directly to my goal, aligning perfectly with my priority to stick to my planned route without detours. This direction seems like the best choice under the circumstances.",
+      "fatigue_before": 0.1928,
+      "heat_before": 0.8927,
+      "fatigue_after": 0.2152,
+      "heat_after": 0.9963
+    }
+  ],
+  "llm_metadata": [
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122055.0348299,
+      "latency_s": 2.121
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122057.1578465,
+      "latency_s": 2.96
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122060.119053,
+      "latency_s": 1.924
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122062.0445979,
+      "latency_s": 1.905
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122063.9513535,
+      "latency_s": 1.67
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122065.6232226,
+      "latency_s": 1.714
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122067.3390045,
+      "latency_s": 2.436
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122069.7770314,
+      "latency_s": 2.382
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122072.1608896,
+      "latency_s": 1.855
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122074.0177016,
+      "latency_s": 2.822
+    }
+  ],
+  "persona_layers": {
+    "layer_1": "She is a first-time visitor exploring the city on a leisurely stroll to take in the sights. Her walk today is both a chance to relax and an opportunity to discover something new.",
+    "layer_2": "Despite not having a particular environmental preference, she prefers avoiding visually hot areas that seem too sunny or exposed. With a high level of time pressure on her mind, she tends to stick to her planned route without considering detours, as she is keen on maintaining her schedule. Her stroll is punctuated by short rests, which she takes to prevent fatigue from setting in, allowing her to maintain a steady pace throughout her exploration. While she is open to enjoying her surroundings, her primary focus remains on the timing of her walk, which influences her not to seek additional points of interest off her planned path.",
+    "layer_3": "\"When facing trade-offs, this persona prioritizes staying on schedule first, comfort in less sunny areas second, and optimizing rest frequency third.\""
+  },
+  "numeric_params": {
+    "base_speed_mps": 1.35,
+    "stamina_reserve": 0.9,
+    "heat_tolerance": 0.8,
+    "age_factor": 1.0,
+    "fatigue_bands": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "heat_bands": [
+      0.25,
+      0.5,
+      0.75
+    ]
+  },
+  "profile_provider": "openai",
+  "profile_llm_metadata": [
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122050.2190392,
+      "latency_s": 1.392
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122051.6116374,
+      "latency_s": 3.422
+    }
+  ]
+}

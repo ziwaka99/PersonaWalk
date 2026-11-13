@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Walk cycle — parts assembler demo</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<h1>Walk-cycle parts assembler</h1>
+<p class="subtitle">Drag the sliders to tune the walk live. All characters share the same CSS variables.</p>
+
+<div class="controls" id="controls"></div>
+
+<main class="workbench">
+  <section class="customizer" aria-label="Character customizer">
+    <div class="customizer-shell">
+      <aside class="part-sidebar" aria-label="Character parts">
+        <div class="sidebar-heading">Character</div>
+        <div class="chooser-stack">
+          <div class="chooser-group">
+            <div class="chooser-title">Body</div>
+            <div class="option-grid body-options" id="body-options"></div>
+          </div>
+          <div class="chooser-group">
+            <div class="chooser-title">Face</div>
+            <div class="segmented-options" id="expression-options"></div>
+          </div>
+          <div class="chooser-group">
+            <div class="chooser-title">Color</div>
+            <div class="swatch-row" id="color-options"></div>
+          </div>
+          <div class="chooser-group">
+            <div class="chooser-title">Legs</div>
+            <div class="segmented-options" id="leg-options"></div>
+          </div>
+        </div>
+      </aside>
+      <div class="preview-stage" id="custom-preview"></div>
+    </div>
+  </section>
+
+  <section class="preset-panel" aria-label="Preset gallery">
+    <div class="gallery" id="gallery"></div>
+  </section>
+</main>
+
+<script src="parts-registry.js"></script>
+<script src="assembler.js"></script>
+<script>
+  // --- Demo recipes ---
+  const recipes = [
+    {
+      label: "getting up",
+      recipe: { body:"body_poster_cloud_01", arm:null, leg:"leg_thin_01",
+                eye:"eye_dot_01", mouth:"mouth_none", color:"#F2F0E6" }
+    },
+    {
+      label: "getting it up",
+      recipe: { body:"body_poster_diamond_01", arm:null, leg:"leg_thin_01",
+                eye:"eye_dot_01", mouth:"mouth_none", color:"#68A8DE" }
+    },
+    {
+      label: "standing up",
+      recipe: { body:"body_poster_capsule_01", arm:null, leg:"leg_thick_01",
+                eye:"eye_dot_01", mouth:"mouth_none", color:"#EFEA75" }
+    },
+    {
+      label: "no worries",
+      recipe: { body:"body_poster_pentagon_01", arm:null, leg:"leg_thin_01",
+                eye:"eye_sleepy_01", mouth:"mouth_smile_01", color:"#8E7CC3" }
+    },
+    {
+      label: "letting loose",
+      recipe: { body:"body_poster_pebble_01", arm:null, leg:"leg_thin_01",
+                eye:"eye_dot_01", mouth:"mouth_smile_01", color:"#E88CBA" }
+    },
+    {
+      label: "growing more",
+      recipe: { body:"body_poster_tall_01", arm:null, leg:"leg_thick_01",
+                eye:"eye_dot_01", mouth:"mouth_none", color:"#F49386" }
+    },
+  ];
+
+  const bodyChoices = [
+    { id: 'body_poster_cloud_01', label: 'cloud' },
+    { id: 'body_poster_diamond_01', label: 'diamond' },
+    { id: 'body_poster_capsule_01', label: 'capsule' },
+    { id: 'body_poster_pentagon_01', label: 'pentagon' },
+    { id: 'body_poster_pebble_01', label: 'pebble' },
+    { id: 'body_poster_tall_01', label: 'tall' },
+  ];
+
+  const expressionChoices = [
+    { label: 'plain', eye: 'eye_dot_01', mouth: 'mouth_none' },
+    { label: 'smile', eye: 'eye_dot_01', mouth: 'mouth_smile_01' },
+    { label: 'sleepy', eye: 'eye_sleepy_01', mouth: 'mouth_smile_01' },
+    { label: 'open', eye: 'eye_oval_01', mouth: 'mouth_open_01' },
+  ];
+
+  const colorChoices = [
+    '#F2F0E6',
+    '#68A8DE',
+    '#EFEA75',
+    '#8E7CC3',
+    '#E88CBA',
+    '#F49386',
+    '#C73732',
+    '#2A9D8F',
+  ];
+
+  const legChoices = [
+    { id: 'leg_thin_01', label: 'thin' },
+    { id: 'leg_thick_01', label: 'thick' },
+  ];
+
+  const customState = {
+    body: bodyChoices[0].id,
+    expression: 1,
+    color: colorChoices[0],
+    leg: legChoices[0].id,
+  };
+
+  // --- Live sliders for the walk-cycle CSS variables ---
+  // Each entry binds a slider to a CSS custom property on :root.
+  const sliders = [
+    { name: 'forward-lean',  min: 0,   max: 30,  value: 0,   step: 1,    unit: 'deg' },
+    { name: 'leg-swing',     min: 10,  max: 50,  value: 35,  step: 1,    unit: 'deg' },
+    { name: 'knee-bend-max', min: 0,   max: 110, value: 89,  step: 1,    unit: 'deg' },
+    { name: 'bob-amount',    min: 0,   max: 25,  value: 19,  step: 1,    unit: 'px' },
+    { name: 'walk-duration', min: 0.3, max: 1.5, value: 1.00, step: 0.05, unit: 's' },
+  ];
+
+  const controls = document.getElementById('controls');
+  const root = document.documentElement;
+  const fmt = (v, step) => Number.isInteger(step) ? String(v) : Number(v).toFixed(2);
+
+  async function init() {
+    await loadPartsLibrary();
+
+    setupCustomizer();
+
+    const gallery = document.getElementById('gallery');
+    for (const { label, recipe } of recipes) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = buildCharacter(recipe) + `<div class="label">${label}</div>`;
+      gallery.appendChild(card);
+    }
+
+    for (const s of sliders) {
+      const wrap = document.createElement('div');
+      wrap.className = 'control';
+      wrap.innerHTML = `
+        <label>
+          <span class="name">--${s.name}</span>
+          <span class="val">${fmt(s.value, s.step)}${s.unit}</span>
+        </label>
+        <input type="range" min="${s.min}" max="${s.max}" value="${s.value}" step="${s.step}">
+      `;
+      const input = wrap.querySelector('input');
+      const valEl = wrap.querySelector('.val');
+      input.addEventListener('input', () => {
+        const v = input.value;
+        valEl.textContent = fmt(v, s.step) + s.unit;
+        root.style.setProperty('--' + s.name, v + s.unit);
+      });
+      controls.appendChild(wrap);
+    }
+  }
+
+  function customRecipe() {
+    const expression = expressionChoices[customState.expression];
+    return {
+      body: customState.body,
+      arm: null,
+      leg: customState.leg,
+      eye: expression.eye,
+      mouth: expression.mouth,
+      color: customState.color,
+    };
+  }
+
+  function renderCustomPreview() {
+    document.getElementById('custom-preview').innerHTML = buildCharacter(customRecipe());
+  }
+
+  function setSelected(container, selector, value) {
+    container.querySelectorAll(selector).forEach(el => {
+      el.classList.toggle('is-selected', el.dataset.value === String(value));
+    });
+  }
+
+  function setupCustomizer() {
+    const bodyWrap = document.getElementById('body-options');
+    const expressionWrap = document.getElementById('expression-options');
+    const colorWrap = document.getElementById('color-options');
+    const legWrap = document.getElementById('leg-options');
+
+    for (const choice of bodyChoices) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'body-choice';
+      button.dataset.value = choice.id;
+      button.innerHTML = `
+        <span class="body-thumb">${buildCharacter({
+          body: choice.id,
+          arm: null,
+          leg: 'leg_thin_01',
+          eye: 'eye_dot_01',
+          mouth: 'mouth_none',
+          color: customState.color,
+        })}</span>
+        <span>${choice.label}</span>
+      `;
+      button.addEventListener('click', () => {
+        customState.body = choice.id;
+        renderCustomPreview();
+        setSelected(bodyWrap, '.body-choice', customState.body);
+      });
+      bodyWrap.appendChild(button);
+    }
+
+    expressionChoices.forEach((choice, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'segment-button';
+      button.dataset.value = String(index);
+      button.textContent = choice.label;
+      button.addEventListener('click', () => {
+        customState.expression = index;
+        renderCustomPreview();
+        setSelected(expressionWrap, '.segment-button', customState.expression);
+      });
+      expressionWrap.appendChild(button);
+    });
+
+    for (const color of colorChoices) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'color-swatch';
+      button.dataset.value = color;
+      button.style.setProperty('--swatch-color', color);
+      button.setAttribute('aria-label', color);
+      button.addEventListener('click', () => {
+        customState.color = color;
+        renderCustomPreview();
+        setSelected(colorWrap, '.color-swatch', customState.color);
+      });
+      colorWrap.appendChild(button);
+    }
+
+    for (const choice of legChoices) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'segment-button';
+      button.dataset.value = choice.id;
+      button.textContent = choice.label;
+      button.addEventListener('click', () => {
+        customState.leg = choice.id;
+        renderCustomPreview();
+        setSelected(legWrap, '.segment-button', customState.leg);
+      });
+      legWrap.appendChild(button);
+    }
+
+    renderCustomPreview();
+    setSelected(bodyWrap, '.body-choice', customState.body);
+    setSelected(expressionWrap, '.segment-button', customState.expression);
+    setSelected(colorWrap, '.color-swatch', customState.color);
+    setSelected(legWrap, '.segment-button', customState.leg);
+  }
+
+  init().catch(err => {
+    console.error(err);
+    document.getElementById('gallery').textContent = 'Could not load SVG parts.';
+  });
+</script>
+
+</body>
+</html>

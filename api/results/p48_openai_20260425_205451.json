@@ -1,0 +1,235 @@
+{
+  "persona_id": "p48",
+  "provider": "openai",
+  "start_node": "305.52,545.03",
+  "goal_node": "791.39,424.53",
+  "outcome": "reached_goal",
+  "path": [
+    "305.52,545.03",
+    "386.69,465.36",
+    "423.33,424.2",
+    "451.43,449.63",
+    "509.16,375.12",
+    "533.0489,390.5598",
+    "563.2483,347.4875",
+    "583.39,318.76",
+    "664.35,366.63",
+    "730.67,398.28",
+    "791.39,424.53"
+  ],
+  "total_steps": 10,
+  "total_distance_m": 651.899338,
+  "total_time_s": 482.9,
+  "final_fatigue": 0.2173,
+  "final_heat": 1,
+  "per_step": [
+    {
+      "step": 1,
+      "node_before": "305.52,545.03",
+      "action": "walk",
+      "next_node": "386.69,465.36",
+      "reasoning": "I'm feeling fresh and comfortable, and I prefer the lively atmosphere on the way to my destination. The medium length path is a bit longer but it leads me closer to my goal. Plus, a mild breeze will be quite pleasant on this hot day.",
+      "fatigue_before": 0.0,
+      "heat_before": 0.0,
+      "fatigue_after": 0.0379,
+      "heat_after": 0.312
+    },
+    {
+      "step": 2,
+      "node_before": "386.69,465.36",
+      "action": "walk",
+      "next_node": "423.33,424.2",
+      "reasoning": "I'm feeling quite fresh and a bit of warmth isn't too concerning for me. The short segment towards 423.33,424.2 seems appealing because it leads me closer to my goal, and the mild breeze sounds pleasant. Plus, the lively activity makes the walk more enjoyable.",
+      "fatigue_before": 0.0379,
+      "heat_before": 0.312,
+      "fatigue_after": 0.0563,
+      "heat_after": 0.4632
+    },
+    {
+      "step": 3,
+      "node_before": "423.33,424.2",
+      "action": "walk",
+      "next_node": "451.43,449.63",
+      "reasoning": "I'm still feeling quite fresh and the warmth isn't too problematic yet. The short path to 451.43,449.63 is appealing as it keeps me closer to my known path and the lively activity is enticing. Plus, it's a manageable step towards my destination, reducing the distance a bit with each move.",
+      "fatigue_before": 0.0563,
+      "heat_before": 0.4632,
+      "fatigue_after": 0.0689,
+      "heat_after": 0.5672
+    },
+    {
+      "step": 4,
+      "node_before": "451.43,449.63",
+      "action": "walk",
+      "next_node": "509.16,375.12",
+      "reasoning": "I'm feeling fresh and don't mind the heat too much at this point. The medium-length path to 509.16,375.12 takes me closer to my goal by a significant distance. Although there's no wind, the partial shade might provide some relief. Plus, there's some activity there, which I enjoy observing even if it's not overly lively.",
+      "fatigue_before": 0.0689,
+      "heat_before": 0.5672,
+      "fatigue_after": 0.1003,
+      "heat_after": 0.8258
+    },
+    {
+      "step": 5,
+      "node_before": "509.16,375.12",
+      "action": "walk",
+      "next_node": "533.0489,390.5598",
+      "reasoning": "I'm feeling fresh, though it's hot and I'm starting to overheat a bit. The walk to 533.0489,390.5598 is short and takes me closer to my destination. It's partially shaded, which might help with the heat. Plus, the enclosed, lively area sounds appealing as I enjoy the urban vibrancy around me.",
+      "fatigue_before": 0.1003,
+      "heat_before": 0.8258,
+      "fatigue_after": 0.1098,
+      "heat_after": 0.9039
+    },
+    {
+      "step": 6,
+      "node_before": "533.0489,390.5598",
+      "action": "walk",
+      "next_node": "563.2483,347.4875",
+      "reasoning": "I'm definitely feeling the heat, but my fatigue is low and I'm accustomed to pushing through it. The short path to 563.2483,347.4875 takes me closer to my destination and has a lively atmosphere that I enjoy. It's partially shaded, which should offer some relief from the heat, even without wind. This option aligns well with my penchant for the city's vibrancy without straying far from my known route. I'll keep moving and enjoy the lively scene there.",
+      "fatigue_before": 0.1098,
+      "heat_before": 0.9039,
+      "fatigue_after": 0.1274,
+      "heat_after": 1
+    },
+    {
+      "step": 7,
+      "node_before": "563.2483,347.4875",
+      "action": "walk",
+      "next_node": "583.39,318.76",
+      "reasoning": "I'm feeling quite hot, but my fatigue is low, and I usually don't let heat slow me down much. The tree-lined and canyon-like path to 583.39,318.76 sounds appealing due to the strong breeze; it should help me cool off. Plus, it leads me closer to my destination with some urban activity that I enjoy. This path aligns with my typical approach of appreciating vibrant city life while making good progress toward my goal.",
+      "fatigue_before": 0.1274,
+      "heat_before": 1,
+      "fatigue_after": 0.1391,
+      "heat_after": 1
+    },
+    {
+      "step": 8,
+      "node_before": "583.39,318.76",
+      "action": "walk",
+      "next_node": "664.35,366.63",
+      "reasoning": "I'm definitely feeling the heat, but my fatigue is low, and I'm used to pushing through overheating situations. The path to 664.35,366.63 is medium length and will bring me much closer to my destination with only about 141 meters remaining. It’s tree-lined with some shade and has a lively atmosphere, which I appreciate in the urban landscape. Although there's only a mild breeze, the vibrancy of the path outweighs the heat discomfort for me, especially as it aligns with staying on course toward my goal.",
+      "fatigue_before": 0.1391,
+      "heat_before": 1,
+      "fatigue_after": 0.1704,
+      "heat_after": 1
+    },
+    {
+      "step": 9,
+      "node_before": "664.35,366.63",
+      "action": "walk",
+      "next_node": "730.67,398.28",
+      "reasoning": "Even though I'm feeling quite hot, my fatigue is low, and I'm quite used to managing in the heat without needing to stop. The path to 730.67,398.28 is tree-lined which might offer some relief, and the canyon-like environment could add an interesting element to my usual commute. The fact that it leaves only about 67 meters to my destination from there is motivating, as I'd be closer to reaching my goal swiftly. Plus, it seems to offer some activity, which I enjoy in an urban setting.",
+      "fatigue_before": 0.1704,
+      "heat_before": 1,
+      "fatigue_after": 0.1949,
+      "heat_after": 1
+    },
+    {
+      "step": 10,
+      "node_before": "730.67,398.28",
+      "action": "walk",
+      "next_node": "791.39,424.53",
+      "reasoning": "Despite the intense heat, my fatigue is low, and I am used to pushing through hot conditions. The tree-lined and canyon-like path to 791.39,424.53 feels like a promising option as it will lead me directly to my destination. The combination of some urban activity and just a mild breeze seems appealing, especially since it offers a direct path to accomplishing my goal. Plus, the enticing environment aligns well with my love for urban vibrancy, so I'll move forward with determination.",
+      "fatigue_before": 0.1949,
+      "heat_before": 1,
+      "fatigue_after": 0.2173,
+      "heat_after": 1
+    }
+  ],
+  "llm_metadata": [
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123216.317714,
+      "latency_s": 1.634
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123217.9532409,
+      "latency_s": 2.473
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123220.4277868,
+      "latency_s": 1.481
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123221.9103825,
+      "latency_s": 2.923
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123224.8355315,
+      "latency_s": 2.387
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123227.224266,
+      "latency_s": 1.954
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123229.1800754,
+      "latency_s": 3.294
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123232.475007,
+      "latency_s": 1.953
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123234.4286144,
+      "latency_s": 1.902
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123236.3316987,
+      "latency_s": 2.393
+    }
+  ],
+  "persona_layers": {
+    "layer_1": "She is a young woman on her occasional commute through the bustling urban streetscape. Today, she is heading towards her destination with a relaxed pace, taking in the city environment around her.",
+    "layer_2": "While she has a tendency to overlook heat cues, her preference for urban environments means she often enjoys the vibrancy of city life around her. She appreciates the buildings, pavement, and the myriad of activities present, though she seldom stops to seek shade or rest unless absolutely necessary. Her approach to time is somewhat relaxed, allowing her a bit of flexibility if a detour seems appealing, though she doesn’t frequently venture off her known path. Pushes through exhaustion is her usual modus operandi during commutes, and rest stops are infrequent unless she is particularly tired. Even if familiar with her route, she might indulge in exploring small points of interest, should they pique her curiosity.",
+    "layer_3": "When facing trade-offs, this persona prioritizes maintaining her planned route first, exploring new sights second, and addressing physical comfort like exhaustion and heat cues third."
+  },
+  "numeric_params": {
+    "base_speed_mps": 1.35,
+    "stamina_reserve": 0.9,
+    "heat_tolerance": 0.45,
+    "age_factor": 1.0,
+    "fatigue_bands": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "heat_bands": [
+      0.25,
+      0.5,
+      0.75
+    ]
+  },
+  "profile_provider": "openai",
+  "profile_llm_metadata": [
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123211.3825977,
+      "latency_s": 1.351
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123212.7340853,
+      "latency_s": 3.582
+    }
+  ]
+}

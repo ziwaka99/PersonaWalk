@@ -1,0 +1,199 @@
+{
+  "persona_id": "p29",
+  "provider": "openai",
+  "start_node": "305.52,545.03",
+  "goal_node": "791.39,424.53",
+  "outcome": "reached_goal",
+  "path": [
+    "305.52,545.03",
+    "386.69,465.36",
+    "423.33,424.2",
+    "482.66,353.97",
+    "537.45,285.3",
+    "583.39,318.76",
+    "664.35,366.63",
+    "730.67,398.28",
+    "791.39,424.53"
+  ],
+  "total_steps": 8,
+  "total_distance_m": 640.2330029999999,
+  "total_time_s": 533.5,
+  "final_fatigue": 0.2774,
+  "final_heat": 1,
+  "per_step": [
+    {
+      "step": 1,
+      "node_before": "305.52,545.03",
+      "action": "walk",
+      "next_node": "386.69,465.36",
+      "reasoning": "I feel fresh and comfortable, and the path via 386.69,465.36 brings me significantly closer to my destination. Despite being open and feeling hot, there's a partial shade and a mild breeze which should be manageable. Plus, the lively activity could provide some interesting urban scenery to enjoy on my way.",
+      "fatigue_before": 0.0,
+      "heat_before": 0.0,
+      "fatigue_after": 0.0493,
+      "heat_after": 0.1975
+    },
+    {
+      "step": 2,
+      "node_before": "386.69,465.36",
+      "action": "walk",
+      "next_node": "423.33,424.2",
+      "reasoning": "I feel fresh and in a comfortable heat load, so I can manage the short hot stretch. The path to 423.33,424.2 gets me closest to my goal, with a mild breeze to help with the heat. Plus, the lively activity keeps it interesting.",
+      "fatigue_before": 0.0493,
+      "heat_before": 0.1975,
+      "fatigue_after": 0.0732,
+      "heat_after": 0.2931
+    },
+    {
+      "step": 3,
+      "node_before": "423.33,424.2",
+      "action": "walk",
+      "next_node": "482.66,353.97",
+      "reasoning": "I feel fresh and my heat load is manageable, so I can handle a slightly longer route. This path gets me notably closer to my destination and is partially shaded, which is appealing given my sensitivity to heat. The enclosed and lively urban scenery is engaging, making it an interesting route to take.",
+      "fatigue_before": 0.0732,
+      "heat_before": 0.2931,
+      "fatigue_after": 0.113,
+      "heat_after": 0.4528
+    },
+    {
+      "step": 4,
+      "node_before": "482.66,353.97",
+      "action": "walk",
+      "next_node": "537.45,285.3",
+      "reasoning": "I feel fresh and not overly burdened by the heat yet, even though the path ahead looks hot. The medium length of this option should be manageable, and it significantly decreases the distance to my destination. The partial shade and mild breeze should help with coping against the heat, and the lively enclosed urban scene will keep the walk interesting.",
+      "fatigue_before": 0.113,
+      "heat_before": 0.4528,
+      "fatigue_after": 0.1511,
+      "heat_after": 0.6053
+    },
+    {
+      "step": 5,
+      "node_before": "537.45,285.3",
+      "action": "walk",
+      "next_node": "583.39,318.76",
+      "reasoning": "I'm still feeling fresh despite the heat, and the tree-lined path with a strong breeze promises relief. This route takes me closer to my destination, and the lively atmosphere keeps it engaging, aligning with my preference for dynamic urban sceneries.",
+      "fatigue_before": 0.1511,
+      "heat_before": 0.6053,
+      "fatigue_after": 0.1757,
+      "heat_after": 0.704
+    },
+    {
+      "step": 6,
+      "node_before": "583.39,318.76",
+      "action": "walk",
+      "next_node": "664.35,366.63",
+      "reasoning": "I'm feeling fresh, and although the current heat is notable, I can manage it for now. The path ahead is tree-lined and lively, both of which align with my preference for dynamic urban sceneries. It also significantly decreases the distance to my destination, keeping me on track with my goal of reaching it efficiently. The mild breeze should offer some relief from the heat, making this an appealing choice.",
+      "fatigue_before": 0.1757,
+      "heat_before": 0.704,
+      "fatigue_after": 0.2165,
+      "heat_after": 0.8674
+    },
+    {
+      "step": 7,
+      "node_before": "664.35,366.63",
+      "action": "walk",
+      "next_node": "730.67,398.28",
+      "reasoning": "Even though I'm feeling a bit overheated, the short distance with a tree-lined, mildly breezy option promises some level of relief. This path also takes me significantly closer to my destination, keeping my efficiency goal in check. The vibrant cityscape with some activity adds to the appeal, keeping me engaged while I continue moving forward.",
+      "fatigue_before": 0.2165,
+      "heat_before": 0.8674,
+      "fatigue_after": 0.2483,
+      "heat_after": 0.9949
+    },
+    {
+      "step": 8,
+      "node_before": "730.67,398.28",
+      "action": "walk",
+      "next_node": "791.39,424.53",
+      "reasoning": "I'm feeling quite overheated right now, but I am so close to my destination that I'm willing to push through. The path to 791.39,424.53 is short and tree-lined with a mild breeze, which should offer some level of comfort against the heat. Additionally, this path leads me directly to my goal, which is a strong motivator to keep moving efficiently despite the heat load.",
+      "fatigue_before": 0.2483,
+      "heat_before": 0.9949,
+      "fatigue_after": 0.2774,
+      "heat_after": 1
+    }
+  ],
+  "llm_metadata": [
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122601.7577212,
+      "latency_s": 1.661
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122603.4203854,
+      "latency_s": 1.801
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122605.22294,
+      "latency_s": 1.485
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122606.7099652,
+      "latency_s": 2.43
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122609.1414354,
+      "latency_s": 1.995
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122611.1382358,
+      "latency_s": 2.478
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122613.6181214,
+      "latency_s": 1.953
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122615.5722845,
+      "latency_s": 1.897
+    }
+  ],
+  "persona_layers": {
+    "layer_1": "She is a woman on her way to work, navigating the bustling city streets. Today, she is focused on reaching her destination with efficiency.",
+    "layer_2": "This commuter has a mild sensitivity to the visual discomfort of heat, preferring the shadows cast by the tall buildings and the active cityscape to an open sunlit path. She enjoys urban sceneries, appreciating the vibrancy and dynamic aspects of the city as she walks. Despite feeling pressed for time, she remains mildly open to detours if they offer beneficial shortcuts or intriguing sights. Her determination is notable, often pushing through fatigue without pausing, rarely seeking rest until absolutely necessary. While her primary aim is to reach her endpoint, she may occasionally explore points of interest if they align closely with her route, keeping in mind her overall sense of urgency and periodic exploration habits.",
+    "layer_3": "\"When facing trade-offs, this persona prioritizes time efficiency first, visual comfort second, and exploration potential third.\""
+  },
+  "numeric_params": {
+    "base_speed_mps": 1.2,
+    "stamina_reserve": 0.9,
+    "heat_tolerance": 0.8,
+    "age_factor": 1.3,
+    "fatigue_bands": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "heat_bands": [
+      0.25,
+      0.5,
+      0.75
+    ]
+  },
+  "profile_provider": "openai",
+  "profile_llm_metadata": [
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122597.0945842,
+      "latency_s": 1.176
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122598.2704394,
+      "latency_s": 3.486
+    }
+  ]
+}

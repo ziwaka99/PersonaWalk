@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persona Walk</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sim-cards.css">
+</head>
+<body>
+    <nav class="navbar">
+        <h1>persona<span class="brand-light">walk</span></h1>
+        <a href="index.html" class="active">home</a>
+        <a href="playback.html">playback</a>
+        <a href="realmap.html">real map</a>
+        <a href="insight.html">insight</a>
+    </nav>
+
+    <section class="home-top">
+        <p class="home-profile-prompt">Choose a profile and see how it goes</p>
+        <div class="home-card-scroll">
+            <div id="results-list" class="sim-grid">
+                <p class="sim-grid-empty">Loading...</p>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/data-loader.js"></script>
+    <script src="animation/parts-registry.js"></script>
+    <script src="animation/assembler.js"></script>
+    <script>
+        // Animation assets live under PROJECT_ROOT/Animation, served by Flask
+        // at animation/. The registry uses page-relative paths like
+        // "parts/bodies/...svg", which would resolve to /parts/... on this page.
+        // Rewrite them to animation/parts/... before loadPartsLibrary fetches.
+        Object.values(window.PARTS).forEach(p => {
+            if (p.svgFile && !p.svgFile.startsWith('/')) p.svgFile = 'animation/' + p.svgFile;
+            if (p.shadowSvgFile && !p.shadowSvgFile.startsWith('/')) p.shadowSvgFile = 'animation/' + p.shadowSvgFile;
+        });
+
+        // ---- Deterministic persona_id -> recipe mapping ----
+        // Same persona always gets the same body/leg/eye/mouth/color combo,
+        // so users can recognize "the purple tall one" across reloads.
+        const BODY_CHOICES  = ['body_poster_cloud_01','body_poster_diamond_01','body_poster_capsule_01',
+                               'body_poster_pentagon_01','body_poster_pebble_01','body_poster_tall_01'];
+        const LEG_CHOICES   = ['leg_thin_01','leg_thick_01'];
+        const EYE_CHOICES   = ['eye_dot_01','eye_oval_01','eye_sleepy_01'];
+        const MOUTH_CHOICES = ['mouth_none','mouth_smile_01','mouth_open_01'];
+        const COLOR_CHOICES = ['#F2F0E6','#68A8DE','#EFEA75','#8E7CC3','#E88CBA','#F49386','#C73732','#2A9D8F'];
+
+        function hashStr(s) {
+            // Simple deterministic 32-bit hash (FNV-1a flavor).
+            let h = 2166136261 >>> 0;
+            for (let i = 0; i < s.length; i++) {
+                h ^= s.charCodeAt(i);
+                h = Math.imul(h, 16777619) >>> 0;
+            }
+            return h;
+        }
+        function pick(arr, seed, salt) {
+            return arr[hashStr(seed + ':' + salt) % arr.length];
+        }
+        function recipeFor(personaId) {
+            const id = personaId || 'unknown';
+            return {
+                body:  pick(BODY_CHOICES,  id, 'body'),
+                arm:   null,
+                leg:   pick(LEG_CHOICES,   id, 'leg'),
+                eye:   pick(EYE_CHOICES,   id, 'eye'),
+                mouth: pick(MOUTH_CHOICES, id, 'mouth'),
+                color: pick(COLOR_CHOICES, id, 'color'),
+            };
+        }
+
+        (async () => {
+            const listEl = document.getElementById('results-list');
+            try {
+                await window.loadPartsLibrary();
+                const results = await DataLoader.loadResultsList();
+                if (results.length === 0) {
+                    listEl.innerHTML = '<p class="sim-grid-empty">No simulation results yet. Run <code>python run_simulation.py</code> first.</p>';
+                    return;
+                }
+                const frag = document.createDocumentFragment();
+                // Single click toggles the walk animation on that card;
+                // double click navigates to the playback page. A short
+                // debounce defers the single-click action so dblclick can
+                // cancel it before it fires.
+                const CLICK_DELAY_MS = 220;
+                results.forEach((r, idx) => {
+                    const card = document.createElement('a');
+                    card.className = 'sim-card';
+                    card.href = `/playback.html?file=${encodeURIComponent(r.filename)}`;
+                    card.title = `${r.filename}\n${r.provider} · ${r.total_steps} steps\n(single click to animate, double click to open)`;
+                    card.setAttribute('data-phase', '');
+                    // Stagger each card's walk phase so the grid doesn't tick in unison.
+                    const phase = ((hashStr(r.persona_id || r.filename) % 100) / 100).toFixed(2);
+                    card.style.setProperty('--phase-shift', `-${phase}s`);
+
+                    const badgeClass = r.outcome === 'reached_goal' ? 'badge-fresh' : 'badge-tired';
+                    card.innerHTML = `
+                        <span class="badge ${badgeClass} sim-card-badge">${r.outcome || '—'}</span>
+                        <div class="sim-card-stage">${buildCharacter(recipeFor(r.persona_id))}</div>
+                        <div class="sim-card-pid">${r.persona_id || r.filename}</div>
+                    `;
+
+                    let clickTimer = null;
+                    card.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        if (clickTimer) { clearTimeout(clickTimer); }
+                        clickTimer = setTimeout(() => {
+                            card.classList.toggle('is-walking');
+                            clickTimer = null;
+                        }, CLICK_DELAY_MS);
+                    });
+                    card.addEventListener('dblclick', (e) => {
+                        e.preventDefault();
+                        if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
+                        window.location.href = card.href;
+                    });
+
+                    frag.appendChild(card);
+                });
+                listEl.innerHTML = '';
+                listEl.appendChild(frag);
+            } catch (e) {
+                listEl.innerHTML = `<p class="sim-grid-error">Error: ${e.message}</p>`;
+            }
+        })();
+    </script>
+</body>
+</html>

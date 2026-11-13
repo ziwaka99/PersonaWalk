@@ -1,0 +1,199 @@
+{
+  "persona_id": "p40",
+  "provider": "openai",
+  "start_node": "305.52,545.03",
+  "goal_node": "791.39,424.53",
+  "outcome": "reached_goal",
+  "path": [
+    "305.52,545.03",
+    "386.69,465.36",
+    "423.33,424.2",
+    "482.66,353.97",
+    "537.45,285.3",
+    "583.39,318.76",
+    "664.35,366.63",
+    "730.67,398.28",
+    "791.39,424.53"
+  ],
+  "total_steps": 8,
+  "total_distance_m": 640.2330029999999,
+  "total_time_s": 533.5,
+  "final_fatigue": 0.4246,
+  "final_heat": 0.8892,
+  "per_step": [
+    {
+      "step": 1,
+      "node_before": "305.52,545.03",
+      "action": "walk",
+      "next_node": "386.69,465.36",
+      "reasoning": "I'm feeling fresh and the distance to the goal will significantly reduce after this path. The lively activity and open, airy environment pique my curiosity, balancing my need to explore with the time constraint I have.",
+      "fatigue_before": 0.0,
+      "heat_before": 0.0,
+      "fatigue_after": 0.0754,
+      "heat_after": 0.158
+    },
+    {
+      "step": 2,
+      "node_before": "386.69,465.36",
+      "action": "walk",
+      "next_node": "423.33,424.2",
+      "reasoning": "I'm feeling fresh and comfortable, so I'm ready to keep walking. The shortest heading to my destination from 423.33,424.2 catches my attention, especially since I have a bit of a time constraint. Plus, a mild breeze might provide some pleasant refreshment as I walk. Continuing to enjoy the lively enclosed environment sounds appealing on this leisurely exploration.",
+      "fatigue_before": 0.0754,
+      "heat_before": 0.158,
+      "fatigue_after": 0.112,
+      "heat_after": 0.2345
+    },
+    {
+      "step": 3,
+      "node_before": "423.33,424.2",
+      "action": "walk",
+      "next_node": "482.66,353.97",
+      "reasoning": "I'm feeling fresh and not too hot, so I'm comfortable continuing without a rest. The medium-length path to 482.66,353.97 is appealing because it will significantly reduce the distance to my destination. Despite the thermal impression being hot, the partial shade should help moderate it. Plus, the lively, enclosed environment could offer interesting sights and sounds, keeping my walk enjoyable even with just a bit of time pressure in mind.",
+      "fatigue_before": 0.112,
+      "heat_before": 0.2345,
+      "fatigue_after": 0.173,
+      "heat_after": 0.3622
+    },
+    {
+      "step": 4,
+      "node_before": "482.66,353.97",
+      "action": "walk",
+      "next_node": "537.45,285.3",
+      "reasoning": "I'm feeling fresh and not overly tired, so I'm comfortable continuing without a rest. The path to 537.45,285.3 seems like a good choice because it will significantly reduce the distance to my destination. Despite the thermal impression being hot, the partial shade and mild breeze should make the walk more comfortable. The lively and enclosed environment intrigues me, promising interesting sights or sounds that align with my exploratory mood, even with a bit of urgency in reaching my goal.",
+      "fatigue_before": 0.173,
+      "heat_before": 0.3622,
+      "fatigue_after": 0.2312,
+      "heat_after": 0.4842
+    },
+    {
+      "step": 5,
+      "node_before": "537.45,285.3",
+      "action": "walk",
+      "next_node": "583.39,318.76",
+      "reasoning": "Even though I'm feeling a bit of urgency due to my time constraints, I am still fresh and not too hot. The short path to 583.39,318.76 is appealing because it brings me closer to my goal by reducing the remaining distance significantly. The tree-lined, canyon-like path seems lively and intriguing, and the strong breeze should make the thermal impression more comfortable. This path aligns well with my willingness to explore new urban scenery.",
+      "fatigue_before": 0.2312,
+      "heat_before": 0.4842,
+      "fatigue_after": 0.2689,
+      "heat_after": 0.5632
+    },
+    {
+      "step": 6,
+      "node_before": "583.39,318.76",
+      "action": "walk",
+      "next_node": "664.35,366.63",
+      "reasoning": "I'm feeling fresh with just a bit of warmth, and my energy is well-managed, allowing me to continue my stroll without resting. The medium-length path to 664.35,366.63 intrigues me because it reduces the distance to my destination significantly. The tree-lined, canyon-like environment with lively activity promises to be interesting and might offer appealing sights or sounds. Despite the thermal impression of being hot, I'm unfazed by it, and the mild breeze will help. This path aligns with my explorative mood, keeping the journey delightful even with my slight time pressure.",
+      "fatigue_before": 0.2689,
+      "heat_before": 0.5632,
+      "fatigue_after": 0.3314,
+      "heat_after": 0.6939
+    },
+    {
+      "step": 7,
+      "node_before": "664.35,366.63",
+      "action": "walk",
+      "next_node": "730.67,398.28",
+      "reasoning": "I'm feeling warm but not overly fatigued, so I'm comfortable with continuing my stroll. The path to 730.67,398.28 seems appealing as it significantly reduces the distance to my destination with just 67 meters left from there. The tree-lined and canyon-like path has some activity, which might offer intriguing sights or sounds. Despite the hot thermal impression, the mild breeze and my comfort with the current warmth make this a suitable choice for my explorative mood and slight urgency in reaching my goal.",
+      "fatigue_before": 0.3314,
+      "heat_before": 0.6939,
+      "fatigue_after": 0.3801,
+      "heat_after": 0.796
+    },
+    {
+      "step": 8,
+      "node_before": "730.67,398.28",
+      "action": "walk",
+      "next_node": "791.39,424.53",
+      "reasoning": "Even though I'm feeling a bit of heat and some warmth building up, I'm nearing the end of my walk with only 67 meters left to reach my destination. The short path to 791.39,424.53 aligns perfectly with my slight sense of urgency and curiosity, as it brings me directly to my goal with just a bit of intriguing activity along the way. The tree-lined, canyon-like path with a mild breeze is appealing and should offer an agreeable environment despite the hot thermal impression.",
+      "fatigue_before": 0.3801,
+      "heat_before": 0.796,
+      "fatigue_after": 0.4246,
+      "heat_after": 0.8892
+    }
+  ],
+  "llm_metadata": [
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122992.6345792,
+      "latency_s": 1.311
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122993.947139,
+      "latency_s": 2.232
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122996.1809223,
+      "latency_s": 1.666
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122997.8491473,
+      "latency_s": 1.487
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122999.3381112,
+      "latency_s": 2.082
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123001.421246,
+      "latency_s": 2.252
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123003.6747441,
+      "latency_s": 1.848
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777123005.5247364,
+      "latency_s": 2.131
+    }
+  ],
+  "persona_layers": {
+    "layer_1": "She is a first-time visitor to this urban area, taking a leisurely stroll to explore her surroundings and enjoy a change of scene.",
+    "layer_2": "Her indifferent stance towards different environments indicates that she isn't particularly affected by the heat or glare from the sun, allowing her to walk comfortably without seeking shade. While she might not have a specific preference for particular sceneries, her openness to taking detours suggests a willingness to explore various urban landscapes and discover unexpected sights. However, she experiences a sense of urgency due to time pressure, which might cause a bit of an internal conflict when considering longer routes. Despite this, her energy is well-managed and she rarely feels the need to pause for rest. As she's engaged in a leisure stroll, she is likely to be drawn to intriguing landmarks or points of interest that deviate slightly from the main path.",
+    "layer_3": "\"When facing trade-offs, this persona prioritizes exploring points of interest first, managing time efficiently second, and conserving energy third.\""
+  },
+  "numeric_params": {
+    "base_speed_mps": 1.2,
+    "stamina_reserve": 0.55,
+    "heat_tolerance": 1.0,
+    "age_factor": 1.216,
+    "fatigue_bands": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "heat_bands": [
+      0.25,
+      0.5,
+      0.75
+    ]
+  },
+  "profile_provider": "openai",
+  "profile_llm_metadata": [
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122987.0495234,
+      "latency_s": 2.019
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "timestamp": 1777122989.068436,
+      "latency_s": 3.564
+    }
+  ]
+}
