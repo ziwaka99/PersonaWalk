@@ -1,0 +1,155 @@
+/* Intro overlay. Walk cycle adapted from PersonaWalk/animation/styles.css
+ * (github.com/ziwaka99/PersonaWalk), scoped under .intro. */
+
+.intro {
+    --walk-duration: 0.62s;
+    --leg-swing: 35deg;
+    --arm-swing: 18deg;
+    --bob-amount: 14px;
+    --sway-amount: 0px;
+    --arm-lag: 0.06s;
+    --knee-bend-max: 89deg;
+    --forward-lean: 4deg;
+    --part-shadow-color: #232323;
+
+    position: fixed;
+    z-index: 100;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 55%, #0d2c17 0%, #061f0d 58%, #031309 100%);
+    transition: opacity 800ms ease;
+}
+
+.intro.is-leaving { opacity: 0; pointer-events: none; }
+
+.intro-stage {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+.intro-crowd { position: relative; width: 100%; height: 168px; }
+
+.intro-walker {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 150px;
+    margin-left: -75px;
+    transform: translateX(-200vw);
+}
+
+.intro-walker .character-svg { display: block; width: 150px; height: auto; }
+
+.intro-title {
+    color: #f8f5ea;
+    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: clamp(40px, 7vw, 86px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    opacity: 0;
+}
+
+.intro-title span { color: #f4a261; font-weight: 300; }
+
+.intro-skip {
+    position: absolute;
+    right: 26px;
+    bottom: 22px;
+    padding: 6px 10px;
+    border: 0;
+    background: none;
+    color: rgba(248, 245, 234, 0.5);
+    cursor: pointer;
+    font: 12px Inter, ui-sans-serif, -apple-system, sans-serif;
+}
+
+.intro-skip:hover { color: #f8f5ea; }
+
+/* --- Walk cycle --- */
+.intro .character {
+    animation: introBodyMotion var(--walk-duration) ease-in-out infinite;
+    transform-origin: 100px 110px;
+    transform-box: view-box;
+}
+
+.intro .lean {
+    transform: rotate(var(--forward-lean));
+    transform-origin: 100px 200px;
+    transform-box: view-box;
+}
+
+.intro .arm,
+.intro .leg,
+.intro .knee {
+    transform-origin: 0 0;
+    transform-box: view-box;
+}
+
+.intro .leg-L,
+.intro .leg-R { animation: introHipWalk var(--walk-duration) linear infinite; }
+
+.intro .leg-L .knee,
+.intro .leg-R .knee { animation: introKneeWalk var(--walk-duration) ease-in-out infinite; }
+
+.intro .leg-R,
+.intro .leg-R .knee { animation-delay: calc(var(--walk-duration) / -2); }
+
+.intro .arm-L {
+    animation: introArmFwd var(--walk-duration) ease-in-out infinite;
+    animation-delay: calc(-1 * (var(--walk-duration) - var(--arm-lag)));
+}
+
+.intro .arm-R {
+    animation: introArmBack var(--walk-duration) ease-in-out infinite;
+    animation-delay: calc(-1 * (var(--walk-duration) - var(--arm-lag)));
+}
+
+/* Arrived: stand still, upright. */
+.intro-walker.is-stopped .character,
+.intro-walker.is-stopped .leg,
+.intro-walker.is-stopped .knee,
+.intro-walker.is-stopped .arm { animation: none; }
+.intro-walker.is-stopped .lean { transform: none; transition: transform 200ms ease-out; }
+
+@keyframes introBodyMotion {
+    0%   { transform: translate(0, 0); }
+    25%  { transform: translate(var(--sway-amount), calc(-1 * var(--bob-amount))); }
+    50%  { transform: translate(0, 0); }
+    75%  { transform: translate(calc(-1 * var(--sway-amount)), calc(-1 * var(--bob-amount))); }
+    100% { transform: translate(0, 0); }
+}
+
+@keyframes introHipWalk {
+    0%, 100% { transform: rotate(var(--leg-swing)); }
+    50%      { transform: rotate(calc(-1 * var(--leg-swing))); }
+}
+
+@keyframes introKneeWalk {
+    0%   { transform: rotate(20deg); }
+    25%  { transform: rotate(var(--knee-bend-max)); }
+    50%  { transform: rotate(8deg); }
+    75%  { transform: rotate(5deg); }
+    100% { transform: rotate(20deg); }
+}
+
+@keyframes introArmFwd {
+    0%, 100% { transform: rotate(calc(-1 * var(--arm-swing))); }
+    50%      { transform: rotate(var(--arm-swing)); }
+}
+
+@keyframes introArmBack {
+    0%, 100% { transform: rotate(var(--arm-swing)); }
+    50%      { transform: rotate(calc(-1 * var(--arm-swing))); }
+}
+
+@media (max-width: 760px) {
+    .intro-crowd { height: 112px; }
+    .intro-walker { width: 100px; margin-left: -50px; }
+    .intro-walker .character-svg { width: 100px; }
+}

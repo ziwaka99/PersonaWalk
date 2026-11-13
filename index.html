@@ -3,130 +3,329 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Persona Walk</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/sim-cards.css">
+    <title>3D Map | Persona Walk</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+    <link rel="stylesheet" href="css/3dmap.css?v=20261113-8">
+    <link rel="stylesheet" href="intro/intro.css?v=20261113-1">
+    <script>window.PW_STATIC = true;</script>
+    <script src="js/api.js?v=20261113-1"></script>
 </head>
-<body>
-    <nav class="navbar">
-        <h1>persona<span class="brand-light">walk</span></h1>
-        <a href="index.html" class="active">home</a>
-        <a href="playback.html">playback</a>
-        <a href="realmap.html">real map</a>
-        <a href="insight.html">insight</a>
-    </nav>
-
-    <section class="home-top">
-        <p class="home-profile-prompt">Choose a profile and see how it goes</p>
-        <div class="home-card-scroll">
-            <div id="results-list" class="sim-grid">
-                <p class="sim-grid-empty">Loading...</p>
-            </div>
+<body data-mode="map">
+    <section class="intro" id="intro" aria-label="PersonaWalk intro">
+        <div class="intro-stage">
+            <div class="intro-crowd" id="intro-crowd"></div>
+            <div class="intro-title" id="intro-title">Persona<span>Walk</span></div>
         </div>
+        <button class="intro-skip" id="intro-skip" type="button">Skip</button>
     </section>
+    <script src="intro/parts-registry.js"></script>
+    <script src="intro/assembler.js"></script>
+    <script src="intro/intro.js?v=20261113-1"></script>
 
-    <script src="js/data-loader.js"></script>
-    <script src="animation/parts-registry.js"></script>
-    <script src="animation/assembler.js"></script>
-    <script>
-        // Animation assets live under PROJECT_ROOT/Animation, served by Flask
-        // at animation/. The registry uses page-relative paths like
-        // "parts/bodies/...svg", which would resolve to /parts/... on this page.
-        // Rewrite them to animation/parts/... before loadPartsLibrary fetches.
-        Object.values(window.PARTS).forEach(p => {
-            if (p.svgFile && !p.svgFile.startsWith('/')) p.svgFile = 'animation/' + p.svgFile;
-            if (p.shadowSvgFile && !p.shadowSvgFile.startsWith('/')) p.shadowSvgFile = 'animation/' + p.shadowSvgFile;
-        });
+    <main class="map-app">
+        <div id="map" class="map-canvas" aria-label="Singapore pedestrian network map"></div>
 
-        // ---- Deterministic persona_id -> recipe mapping ----
-        // Same persona always gets the same body/leg/eye/mouth/color combo,
-        // so users can recognize "the purple tall one" across reloads.
-        const BODY_CHOICES  = ['body_poster_cloud_01','body_poster_diamond_01','body_poster_capsule_01',
-                               'body_poster_pentagon_01','body_poster_pebble_01','body_poster_tall_01'];
-        const LEG_CHOICES   = ['leg_thin_01','leg_thick_01'];
-        const EYE_CHOICES   = ['eye_dot_01','eye_oval_01','eye_sleepy_01'];
-        const MOUTH_CHOICES = ['mouth_none','mouth_smile_01','mouth_open_01'];
-        const COLOR_CHOICES = ['#F2F0E6','#68A8DE','#EFEA75','#8E7CC3','#E88CBA','#F49386','#C73732','#2A9D8F'];
+        <nav class="mode-switch" role="tablist" aria-label="Inventory mode">
+            <button type="button" role="tab" id="mode-map" data-mode="map" class="active" aria-selected="true" aria-label="Map inventory" data-tip="Map inventory">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
+            </button>
+            <button type="button" role="tab" id="mode-pedestrian" data-mode="pedestrian" aria-selected="false" aria-label="Pedestrian inventory" data-tip="Pedestrian inventory">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>
+            </button>
+        </nav>
 
-        function hashStr(s) {
-            // Simple deterministic 32-bit hash (FNV-1a flavor).
-            let h = 2166136261 >>> 0;
-            for (let i = 0; i < s.length; i++) {
-                h ^= s.charCodeAt(i);
-                h = Math.imul(h, 16777619) >>> 0;
-            }
-            return h;
-        }
-        function pick(arr, seed, salt) {
-            return arr[hashStr(seed + ':' + salt) % arr.length];
-        }
-        function recipeFor(personaId) {
-            const id = personaId || 'unknown';
-            return {
-                body:  pick(BODY_CHOICES,  id, 'body'),
-                arm:   null,
-                leg:   pick(LEG_CHOICES,   id, 'leg'),
-                eye:   pick(EYE_CHOICES,   id, 'eye'),
-                mouth: pick(MOUTH_CHOICES, id, 'mouth'),
-                color: pick(COLOR_CHOICES, id, 'color'),
-            };
-        }
+        <!-- ===== Map inventory ===== -->
+        <aside class="control-panel map-mode-only" id="control-panel" aria-label="Map layers">
+            <div class="panel-resizer" data-side="left" role="separator" aria-orientation="vertical" aria-label="Resize left sidebar" title="Drag to resize · double-click to reset"></div>
+            <header class="panel-heading">
+                <div>
+                    <a class="brand" href="./">persona<span>walk</span></a>
+                    <h1>3D map</h1>
+                    <p>Singapore network</p>
+                </div>
+                <button class="icon-button" id="collapse-layers" type="button" title="Collapse layers" aria-label="Collapse layers">−</button>
+            </header>
 
-        (async () => {
-            const listEl = document.getElementById('results-list');
-            try {
-                await window.loadPartsLibrary();
-                const results = await DataLoader.loadResultsList();
-                if (results.length === 0) {
-                    listEl.innerHTML = '<p class="sim-grid-empty">No simulation results yet. Run <code>python run_simulation.py</code> first.</p>';
-                    return;
-                }
-                const frag = document.createDocumentFragment();
-                // Single click toggles the walk animation on that card;
-                // double click navigates to the playback page. A short
-                // debounce defers the single-click action so dblclick can
-                // cancel it before it fires.
-                const CLICK_DELAY_MS = 220;
-                results.forEach((r, idx) => {
-                    const card = document.createElement('a');
-                    card.className = 'sim-card';
-                    card.href = `/playback.html?file=${encodeURIComponent(r.filename)}`;
-                    card.title = `${r.filename}\n${r.provider} · ${r.total_steps} steps\n(single click to animate, double click to open)`;
-                    card.setAttribute('data-phase', '');
-                    // Stagger each card's walk phase so the grid doesn't tick in unison.
-                    const phase = ((hashStr(r.persona_id || r.filename) % 100) / 100).toFixed(2);
-                    card.style.setProperty('--phase-shift', `-${phase}s`);
+            <div class="panel-scroll">
+                <section class="control-section view-section">
+                    <div class="section-label">View</div>
+                    <div class="segmented" role="group" aria-label="Map view">
+                        <button id="view-top" type="button">Top</button>
+                        <button id="view-3d" type="button" class="active">3D</button>
+                    </div>
+                </section>
 
-                    const badgeClass = r.outcome === 'reached_goal' ? 'badge-fresh' : 'badge-tired';
-                    card.innerHTML = `
-                        <span class="badge ${badgeClass} sim-card-badge">${r.outcome || '—'}</span>
-                        <div class="sim-card-stage">${buildCharacter(recipeFor(r.persona_id))}</div>
-                        <div class="sim-card-pid">${r.persona_id || r.filename}</div>
-                    `;
+                <section class="control-section">
+                    <div class="section-label">Map</div>
+                    <label class="switch-row">
+                        <span><i class="swatch swatch-basemap"></i>Basemap</span>
+                        <input id="layer-basemap" type="checkbox" checked>
+                        <i class="toggle" aria-hidden="true"></i>
+                    </label>
+                    <label class="switch-row">
+                        <span><i class="swatch swatch-buildings"></i>3D buildings</span>
+                        <input id="layer-buildings" type="checkbox" checked>
+                        <i class="toggle" aria-hidden="true"></i>
+                    </label>
+                    <label class="switch-row">
+                        <span><i class="swatch swatch-trees"></i>Trees (3D) <small class="row-count" id="trees-count"></small></span>
+                        <input id="layer-trees" type="checkbox" checked>
+                        <i class="toggle" aria-hidden="true"></i>
+                    </label>
+                    <label class="switch-row">
+                        <span><i class="swatch" id="road-swatch"></i>Road network</span>
+                        <input id="layer-roads" type="checkbox" checked>
+                        <i class="toggle" aria-hidden="true"></i>
+                    </label>
+                    <label class="switch-row">
+                        <span><i class="swatch swatch-nodes"></i>Nodes</span>
+                        <input id="layer-nodes" type="checkbox">
+                        <i class="toggle" aria-hidden="true"></i>
+                    </label>
 
-                    let clickTimer = null;
-                    card.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        if (clickTimer) { clearTimeout(clickTimer); }
-                        clickTimer = setTimeout(() => {
-                            card.classList.toggle('is-walking');
-                            clickTimer = null;
-                        }, CLICK_DELAY_MS);
-                    });
-                    card.addEventListener('dblclick', (e) => {
-                        e.preventDefault();
-                        if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
-                        window.location.href = card.href;
-                    });
+                    <div class="compact-controls">
+                        <label title="Road color"><span>Color</span><input id="road-color" type="color" value="#45d9ff"></label>
+                        <label><span>Width <output id="road-width-value">3</output></span><input id="road-width" type="range" min="1" max="10" step="0.5" value="3"></label>
+                        <label><span>Opacity <output id="road-opacity-value">90%</output></span><input id="road-opacity" type="range" min="0.15" max="1" step="0.05" value="0.9"></label>
+                    </div>
+                </section>
 
-                    frag.appendChild(card);
-                });
-                listEl.innerHTML = '';
-                listEl.appendChild(frag);
-            } catch (e) {
-                listEl.innerHTML = `<p class="sim-grid-error">Error: ${e.message}</p>`;
-            }
-        })();
-    </script>
+                <section class="control-section">
+                    <div class="section-label">Analysis</div>
+                    <label class="switch-row">
+                        <span><i class="swatch swatch-frequency"></i>Edge frequency</span>
+                        <input id="layer-frequency" type="checkbox">
+                        <i class="toggle" aria-hidden="true"></i>
+                    </label>
+                    <label class="switch-row">
+                        <span><i class="swatch swatch-rest"></i>Rest heatmap</span>
+                        <input id="layer-rest" type="checkbox">
+                        <i class="toggle" aria-hidden="true"></i>
+                    </label>
+                    <label class="switch-row">
+                        <span><i class="swatch swatch-metric"></i>Metric overlay</span>
+                        <input id="layer-metric" type="checkbox">
+                        <i class="toggle" aria-hidden="true"></i>
+                    </label>
+                    <label class="select-row" for="metric-select">
+                        <span>Metric</span>
+                        <select id="metric-select">
+                            <option value="Windspeed">Windspeed</option>
+                            <option value="Sky exposure">Sky exposure</option>
+                            <option value="MRT">MRT</option>
+                            <option value="UTCI">UTCI</option>
+                            <option value="PET">PET</option>
+                            <option value="POI count">POI count</option>
+                        </select>
+                    </label>
+                    <div class="map-legend" id="map-legend" hidden>
+                        <div class="legend-scale"></div>
+                        <div><span id="legend-low">Low</span><span id="legend-high">High</span></div>
+                    </div>
+                </section>
+
+                <section class="control-section routes-section">
+                    <div class="section-label section-label-row">
+                        <span>Persona routes</span>
+                        <label class="mini-switch" title="Show persona routes">
+                            <input id="layer-routes" type="checkbox" checked>
+                            <i class="toggle" aria-hidden="true"></i>
+                        </label>
+                    </div>
+                    <div class="route-actions">
+                        <button id="routes-show-all" type="button">Show all</button>
+                        <button id="routes-clear" type="button">Clear</button>
+                    </div>
+                    <div class="route-list" id="route-list">
+                        <div class="loading-row">Loading routes...</div>
+                    </div>
+                </section>
+            </div>
+
+            <footer class="panel-status" id="map-status">Loading map...</footer>
+        </aside>
+
+        <button class="panel-restore layers-restore map-mode-only" id="restore-layers" type="button" hidden>Layers</button>
+
+        <aside class="metrics-panel map-mode-only" id="metrics-panel" aria-label="Selected edge metrics">
+            <div class="panel-resizer" data-side="right" role="separator" aria-orientation="vertical" aria-label="Resize right sidebar" title="Drag to resize · double-click to reset"></div>
+            <header class="metrics-heading">
+                <div>
+                    <span class="eyebrow">Selected edge</span>
+                    <h2 id="edge-title">Edge metrics</h2>
+                </div>
+                <button class="icon-button" id="collapse-metrics" type="button" title="Collapse metrics" aria-label="Collapse metrics">−</button>
+            </header>
+
+            <div class="edge-empty" id="edge-empty">
+                <span class="empty-line"></span>
+                <strong>No edge selected</strong>
+            </div>
+
+            <div class="metrics-scroll" id="edge-content" hidden>
+                <div class="edge-identity">
+                    <div>
+                        <span>Route</span>
+                        <strong id="edge-route">-</strong>
+                    </div>
+                    <div class="segmented compact" role="group" aria-label="Edge direction">
+                        <button type="button" id="dir-1" class="active">Dir 1</button>
+                        <button type="button" id="dir-2">Dir 2</button>
+                    </div>
+                </div>
+
+                <section class="metric-section">
+                    <div class="section-label">Edge summary</div>
+                    <div class="summary-grid" id="edge-summary"></div>
+                </section>
+
+                <section class="metric-section">
+                    <div class="section-label">Simulation means</div>
+                    <div class="metric-grid" id="simulation-metrics"></div>
+                </section>
+
+                <section class="metric-section">
+                    <div class="section-label">Segmentation</div>
+                    <div class="segmentation-list" id="segmentation-metrics"></div>
+                </section>
+
+                <section class="metric-section">
+                    <div class="section-label section-label-row">
+                        <span>Per-point metrics</span>
+                        <span class="sample-count" id="sample-count"></span>
+                    </div>
+                    <div class="trend-list" id="point-metrics"></div>
+                </section>
+            </div>
+        </aside>
+
+        <button class="panel-restore metrics-restore map-mode-only" id="restore-metrics" type="button" hidden>Metrics</button>
+
+        <!-- ===== Pedestrian inventory ===== -->
+        <aside class="control-panel ped-left pedestrian-mode-only" id="ped-left" aria-label="Pedestrian inventory">
+            <div class="panel-resizer" data-side="left" role="separator" aria-orientation="vertical" aria-label="Resize left sidebar" title="Drag to resize · double-click to reset"></div>
+            <header class="panel-heading">
+                <div>
+                    <a class="brand" href="./">persona<span>walk</span></a>
+                    <h1>Pedestrians</h1>
+                    <p id="ped-count">Simulated persona walks</p>
+                </div>
+                <button class="icon-button" id="collapse-ped-left" type="button" title="Collapse personas" aria-label="Collapse personas">−</button>
+            </header>
+
+            <div class="panel-scroll">
+                <section class="control-section">
+                    <div class="section-label">Persona</div>
+                    <input id="ped-search" class="search-input" type="search" placeholder="Search persona" autocomplete="off" spellcheck="false">
+                    <div class="persona-list" id="ped-list" role="listbox" aria-label="Personas">
+                        <div class="loading-row">Loading personas...</div>
+                    </div>
+                </section>
+
+                <section class="control-section">
+                    <div class="section-label section-label-row">
+                        <span>Street view <span class="sample-count" id="ped-view-index"></span></span>
+                        <span class="segmented mini" role="group" aria-label="Street view source">
+                            <button type="button" id="sv-model" data-source="model" title="Live eye-level view of the 3D map">3D</button>
+                            <button type="button" id="sv-rendered" data-source="rendered">Render</button>
+                            <button type="button" id="sv-google" data-source="google">360°</button>
+                        </span>
+                    </div>
+                    <div class="street-view" id="ped-view">
+                        <img id="ped-view-img" alt="" hidden>
+                        <div class="street-pano" id="ped-pano" hidden></div>
+                        <div class="street-model" id="ped-model" hidden></div>
+                        <div class="street-empty" id="ped-view-empty">Select a persona</div>
+                        <button class="street-nav prev" id="ped-view-prev" type="button" title="Previous walked edge" aria-label="Previous walked edge" disabled>‹</button>
+                        <button class="street-nav next" id="ped-view-next" type="button" title="Next walked edge" aria-label="Next walked edge" disabled>›</button>
+                        <button class="street-expand" id="ped-view-expand" type="button" title="Enlarge street view" aria-label="Enlarge street view">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                        </button>
+                    </div>
+                    <div class="street-caption" id="ped-view-caption"></div>
+                </section>
+
+                <section class="control-section">
+                    <div class="section-label section-label-row">
+                        <span>Playback</span>
+                        <span class="sample-count" id="ped-step">Step 0/0</span>
+                    </div>
+                    <div class="playback-row">
+                        <button class="icon-button" id="ped-prev" type="button" title="Previous step" aria-label="Previous step" disabled>‹</button>
+                        <button class="play-button" id="ped-play" type="button" disabled>Play</button>
+                        <button class="icon-button" id="ped-next" type="button" title="Next step" aria-label="Next step" disabled>›</button>
+                        <select id="ped-speed" aria-label="Playback speed">
+                            <option value="2000">Slow</option>
+                            <option value="1000" selected>Normal</option>
+                            <option value="500">Fast</option>
+                        </select>
+                    </div>
+                    <input id="ped-slider" class="step-slider" type="range" min="0" max="0" value="0" aria-label="Step" disabled>
+                </section>
+
+                <section class="control-section">
+                    <div class="section-label">Persona card</div>
+                    <div class="persona-card" id="ped-card">
+                        <div class="loading-row">No persona selected.</div>
+                    </div>
+                </section>
+            </div>
+
+            <footer class="panel-status" id="ped-status">Select a persona to begin.</footer>
+        </aside>
+
+        <button class="panel-restore layers-restore pedestrian-mode-only" id="restore-ped-left" type="button" hidden>Personas</button>
+
+        <div class="state-hud pedestrian-mode-only" id="ped-hud" hidden></div>
+
+        <section class="street-overlay pedestrian-mode-only" id="street-overlay" aria-label="Street view (large)" hidden>
+            <header>
+                <span id="street-overlay-title">Street view</span>
+                <button class="icon-button" id="street-overlay-close" type="button" title="Close (Esc)" aria-label="Close large street view">×</button>
+            </header>
+            <div class="street-overlay-body" id="street-overlay-body"></div>
+        </section>
+
+        <aside class="metrics-panel ped-right pedestrian-mode-only" id="ped-right" aria-label="Persona walk profile">
+            <div class="panel-resizer" data-side="right" role="separator" aria-orientation="vertical" aria-label="Resize right sidebar" title="Drag to resize · double-click to reset"></div>
+            <header class="metrics-heading">
+                <div>
+                    <span class="eyebrow">Walk profile</span>
+                    <h2 id="ped-title">No persona</h2>
+                </div>
+                <button class="icon-button" id="collapse-ped-right" type="button" title="Collapse profile" aria-label="Collapse profile">−</button>
+            </header>
+
+            <div class="edge-empty" id="ped-right-empty">
+                <span class="empty-line"></span>
+                <strong>No persona selected</strong>
+            </div>
+
+            <div class="metrics-scroll" id="ped-right-content" hidden>
+                <section class="metric-section">
+                    <div class="section-label section-label-row">
+                        <span>Element composition</span>
+                        <span class="sample-count" id="ped-seg-count"></span>
+                    </div>
+                    <div class="seg-pie" id="ped-seg"></div>
+                </section>
+
+                <section class="metric-section">
+                    <div class="section-label">Walk timelines</div>
+                    <div class="metric-chips" id="ped-metric-chips"></div>
+                    <div class="walk-charts" id="ped-charts"></div>
+                </section>
+            </div>
+        </aside>
+
+        <button class="panel-restore metrics-restore pedestrian-mode-only" id="restore-ped-right" type="button" hidden>Profile</button>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    <script src="js/sidebar-resize.js?v=20261113-1"></script>
+    <script src="js/3dmap-view.js?v=20261113-5"></script>
+    <script src="js/3dmap-pedestrian.js?v=20261113-7"></script>
 </body>
 </html>
