@@ -24,7 +24,10 @@
 
 .intro.is-leaving { opacity: 0; pointer-events: none; }
 
+.intro.is-resetting .intro-stage { opacity: 0; }
+
 .intro-stage {
+    transition: opacity 800ms ease;
     display: flex;
     width: 100%;
     flex-direction: column;

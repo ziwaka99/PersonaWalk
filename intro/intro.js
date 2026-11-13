@@ -5,6 +5,9 @@
     if (!intro) return;
     const crowd = document.getElementById('intro-crowd');
     const title = document.getElementById('intro-title');
+    // Loop mode (intro/preview.html): replay forever with new figures instead of revealing the map.
+    const loop = intro.hasAttribute('data-loop');
+    let partsReady = null;
 
     const BODIES = ['body_poster_cloud_01', 'body_poster_diamond_01', 'body_poster_capsule_01', 'body_poster_pentagon_01', 'body_poster_pebble_01', 'body_poster_tall_01'];
     const FACES = [
@@ -53,13 +56,31 @@
         }));
     }
 
-    async function play() {
-        // Part paths in the registry are relative to the animation folder.
-        for (const part of Object.values(window.PARTS)) {
-            if (part.svgFile) part.svgFile = `intro/${part.svgFile}`;
-            if (part.shadowSvgFile) part.shadowSvgFile = `intro/${part.shadowSvgFile}`;
+    function loadParts() {
+        if (!partsReady) {
+            // Part paths in the registry are relative to the intro folder.
+            const prefix = loop ? '' : 'intro/';
+            for (const part of Object.values(window.PARTS)) {
+                if (part.svgFile) part.svgFile = `${prefix}${part.svgFile}`;
+                if (part.shadowSvgFile) part.shadowSvgFile = `${prefix}${part.shadowSvgFile}`;
+            }
+            partsReady = window.loadPartsLibrary();
         }
-        await window.loadPartsLibrary();
+        return partsReady;
+    }
+
+    function replay() {
+        intro.classList.add('is-resetting');
+        setTimeout(() => {
+            crowd.replaceChildren();
+            title.getAnimations().forEach(animation => animation.cancel());
+            intro.classList.remove('is-resetting');
+            play().catch(error => console.warn('Intro animation unavailable:', error));
+        }, FADE_MS);
+    }
+
+    async function play() {
+        await loadParts();
         if (finished) return;
 
         const walkerWidth = window.matchMedia('(max-width: 760px)').matches ? 100 : 150;
@@ -88,19 +109,21 @@
         );
 
         const arrival = WALK_MS + (recipes.length - 1) * STAGGER_MS;
-        finishTimer = setTimeout(finish, arrival + HOLD_MS);
+        finishTimer = setTimeout(loop ? replay : finish, arrival + HOLD_MS);
     }
 
-    document.getElementById('intro-skip').addEventListener('click', finish);
-    intro.addEventListener('click', finish);
-    document.addEventListener('keydown', function onKey() {
-        document.removeEventListener('keydown', onKey);
-        finish();
-    });
+    if (!loop) {
+        document.getElementById('intro-skip').addEventListener('click', finish);
+        intro.addEventListener('click', finish);
+        document.addEventListener('keydown', function onKey() {
+            document.removeEventListener('keydown', onKey);
+            finish();
+        });
+    }
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         title.style.opacity = '1';
-        finishTimer = setTimeout(finish, HOLD_MS);
+        if (!loop) finishTimer = setTimeout(finish, HOLD_MS);
         return;
     }
 
