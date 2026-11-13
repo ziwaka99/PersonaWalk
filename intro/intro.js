@@ -83,8 +83,10 @@
         await loadParts();
         if (finished) return;
 
-        const walkerWidth = window.matchMedia('(max-width: 760px)').matches ? 100 : 150;
+        // Six figures spaced at 0.86x their width must fit the viewport (or embedding frame).
+        const walkerWidth = Math.max(40, Math.min(150, Math.floor((window.innerWidth - 24) / (6 * 0.86 + 0.3))));
         const spacing = walkerWidth * 0.86;
+        intro.style.setProperty('--walker-size', `${walkerWidth}px`);
         const startX = -(window.innerWidth / 2 + walkerWidth);
         const recipes = randomRecipes();
 

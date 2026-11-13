@@ -35,23 +35,23 @@
     gap: 14px;
 }
 
-.intro-crowd { position: relative; width: 100%; height: 168px; }
+.intro-crowd { position: relative; width: 100%; height: calc(var(--walker-size, 150px) * 1.12); }
 
 .intro-walker {
     position: absolute;
     bottom: 0;
     left: 50%;
-    width: 150px;
-    margin-left: -75px;
+    width: var(--walker-size, 150px);
+    margin-left: calc(var(--walker-size, 150px) / -2);
     transform: translateX(-200vw);
 }
 
-.intro-walker .character-svg { display: block; width: 150px; height: auto; }
+.intro-walker .character-svg { display: block; width: 100%; height: auto; }
 
 .intro-title {
     color: #f8f5ea;
     font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    font-size: clamp(40px, 7vw, 86px);
+    font-size: clamp(30px, 7vw, 86px);
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1;
@@ -149,10 +149,4 @@
 @keyframes introArmBack {
     0%, 100% { transform: rotate(var(--arm-swing)); }
     50%      { transform: rotate(calc(-1 * var(--arm-swing))); }
-}
-
-@media (max-width: 760px) {
-    .intro-crowd { height: 112px; }
-    .intro-walker { width: 100px; margin-left: -50px; }
-    .intro-walker .character-svg { width: 100px; }
 }
